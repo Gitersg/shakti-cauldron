@@ -57,16 +57,16 @@ function uid(){ return crypto.randomUUID(); }
 function step(text){ return {id:uid(), text, done:false}; }
 function starter(){
   const rows = [
-    ["The chemist\u2019s first page","read","Foundations","Write what a chemist records.",["Name units for mass, volume, and temperature.","Write question, measurement, and what would prove you wrong."],30],
-    ["Significant figures drill","solve","Foundations","Round only the precision you earned.",["Count sig figs in 12.0, 0.045, and 100.10.","Multiply 2.50 \u00d7 3.1 and round.","Write the rule in notes."],40],
-    ["Density by water displacement","practical","Foundations","A stone or steel nut, water only.",["Record mass if you can.","Record the water rise.","Density = mass \u00f7 volume, with units."],50],
+    ["The chemist’s first page","read","Foundations","Write what a chemist records.",["Name units for mass, volume, and temperature.","Write question, measurement, and what would prove you wrong."],30],
+    ["Significant figures drill","solve","Foundations","Round only the precision you earned.",["Count sig figs in 12.0, 0.045, and 100.10.","Multiply 2.50 × 3.1 and round.","Write the rule in notes."],40],
+    ["Density by water displacement","practical","Foundations","A stone or steel nut, water only.",["Record mass if you can.","Record the water rise.","Density = mass ÷ volume, with units."],50],
     ["Configurations, five elements","solve","Atoms","Ground states on paper.",["Write Na, Cl, Fe, Cu, Br.","Mark the copper exception."],45],
-    ["Mass-to-mass, one reaction","solve","Stoichiometry","CaCO3 \u2192 CaO + CO2 from 25.0 g CaCO3.",["Confirm the 1:1 ratio.","Convert grams to moles.","Convert moles of CaO to grams."],55],
+    ["Mass-to-mass, one reaction","solve","Stoichiometry","CaCO3 → CaO + CO2 from 25.0 g CaCO3.",["Confirm the 1:1 ratio.","Convert grams to moles.","Convert moles of CaO to grams."],55],
     ["Cabbage indicator chart","practical","Solutions","Kitchen acids and bases. No bleach.",["Cool a cabbage-water extract.","Test four household items in separate cups.","Record color and acid or base."],60],
-    ["Le Chatelier on paper","solve","Equilibrium","N2 + 3H2 \u21cc 2NH3, exothermic forward.",["Shift if H2 is added.","Shift if pressure rises.","Shift if temperature rises."],50],
+    ["Le Chatelier on paper","solve","Equilibrium","N2 + 3H2 ⇌ 2NH3, exothermic forward.",["Shift if H2 is added.","Shift if pressure rises.","Shift if temperature rises."],50],
     ["Functional group patrol","solve","Organic","Name the family only.",["Classify ethanol, propanone, ethanoic acid, ethylamine."],40],
     ["Pairs you will not mix","practical","Bench craft","A written card. Do not test the pairs.",["Look up one university incompatibility chart.","Write five banned pairs, including bleach with acid and bleach with ammonia."],45],
-    ["Plan a phenyl product \u2014 do not brew it from this card","practical","Product planning","Indian market phenyl is a pine-oil disinfectant emulsion, not a drug. No recipe and no concentrations here.",["Write what the product is and who must not use it.","Name classes only: oil, emulsifier, water, fragrance.","Write bans: no bleach, no ammonia, no closed heating.","Name PPE and the trusted source for any real method."],70]
+    ["Plan a phenyl product — do not brew it from this card","practical","Product planning","Indian market phenyl is a pine-oil disinfectant emulsion, not a drug. No recipe and no concentrations here.",["Write what the product is and who must not use it.","Name classes only: oil, emulsifier, water, fragrance.","Write bans: no bleach, no ammonia, no closed heating.","Name PPE and the trusted source for any real method."],70]
   ];
   return rows.map((row)=>({
     id:uid(), title:row[0], kind:row[1], track:row[2], brief:row[3],
@@ -96,50 +96,50 @@ function paint(){
   const title = (state.profile.rankTitles.find(r=>r.level===level)||{}).title || ("Level "+level);
   document.getElementById("who").textContent = state.profile.chemistName || "Chemist";
   document.getElementById("motto").textContent = state.profile.motto || "";
-  document.getElementById("rank").textContent = "Rank "+level+" \u00b7 "+title;
+  document.getElementById("rank").textContent = "Rank "+level+" · "+title;
   const floor = xpToReach(level), ceil = level>=20 ? floor+1 : xpToReach(level+1);
   const pct = level>=20 ? 100 : Math.round(((state.xp-floor)/Math.max(1,ceil-floor))*100);
   document.getElementById("bar").style.width = Math.max(0,Math.min(100,pct))+"%";
-  document.getElementById("xp").textContent = state.xp+" XP"+(level>=20?"":" \u00b7 next rank at "+ceil);
+  document.getElementById("xp").textContent = state.xp+" XP"+(level>=20?"":" · next rank at "+ceil);
   document.querySelectorAll("nav button").forEach(btn=>btn.setAttribute("aria-current", btn.dataset.view===view?"page":"false"));
   const root = document.getElementById("app");
   root.innerHTML = view==="alchemy" ? alchemyHtml() : view==="settings" ? settingsHtml() : missionsHtml();
 }
 function missionsHtml(){
   const cards = state.missions.map(m=>{
-    const steps = m.steps.map(s=>`<label class=\"row\"><input type=\"checkbox\" data-check=\"${m.id}\" data-step=\"${s.id}\" ${s.done?\"checked\":\"\"} ${m.status===\"done\"?\"disabled\":\"\"}/> <span>${escapeHtml(s.text)}</span></label>`).join(\"\");
-    return `<article class=\"card\"><p class=\"brass\">${escapeHtml(m.track)} \u00b7 ${m.kind} \u00b7 ${m.xp} XP \u00b7 ${m.status}</p><h2>${escapeHtml(m.title)}</h2><p class=\"muted\">${escapeHtml(m.brief)}</p>${m.safetyNote?`<p class=\"brass\">${escapeHtml(m.safetyNote)}</p>`:\"\"}${steps}<label>Notes<textarea data-notes=\"${m.id}\">${escapeHtml(m.notes)}</textarea></label><div class=\"row\"><button class=\"primary\" type=\"button\" data-seal=\"${m.id}\">Seal</button><button type=\"button\" data-reopen=\"${m.id}\">Reopen</button></div></article>`;
-  }).join(\"\");
-  return cards + `<article class=\"card\"><h2>Write a mission</h2><label>Title<input id=\"nt\" /></label><label>Track<input id=\"nk\" value=\"Custom\" /></label><label>Brief<textarea id=\"nb\"></textarea></label><label>Steps, one per line<textarea id=\"ns\">Read the source\\nWrite the working</textarea></label><label>XP<input id=\"nx\" type=\"number\" value=\"${state.profile.defaultMissionXp}\" /></label><button class=\"primary\" type=\"button\" id=\"nadd\">Add mission</button></article>`;
+    const steps = m.steps.map(s=>`<label class="row"><input type="checkbox" data-check="${m.id}" data-step="${s.id}" ${s.done?"checked":""} ${m.status==="done"?"disabled":""}/> <span>${escapeHtml(s.text)}</span></label>`).join("");
+    return `<article class="card"><p class="brass">${escapeHtml(m.track)} · ${m.kind} · ${m.xp} XP · ${m.status}</p><h2>${escapeHtml(m.title)}</h2><p class="muted">${escapeHtml(m.brief)}</p>${m.safetyNote?`<p class="brass">${escapeHtml(m.safetyNote)}</p>`:""}${steps}<label>Notes<textarea data-notes="${m.id}">${escapeHtml(m.notes)}</textarea></label><div class="row"><button class="primary" type="button" data-seal="${m.id}">Seal</button><button type="button" data-reopen="${m.id}">Reopen</button></div></article>`;
+  }).join("");
+  return cards + `<article class="card"><h2>Write a mission</h2><label>Title<input id="nt" /></label><label>Track<input id="nk" value="Custom" /></label><label>Brief<textarea id="nb"></textarea></label><label>Steps, one per line<textarea id="ns">Read the source\nWrite the working</textarea></label><label>XP<input id="nx" type="number" value="${state.profile.defaultMissionXp}" /></label><button class="primary" type="button" id="nadd">Add mission</button></article>`;
 }
 function alchemyHtml(){
-  const cards = state.alchemy.map(a=>`<article class=\"card\"><h2>${escapeHtml(a.product||\"Untitled\")}</h2><p class=\"brass\">${escapeHtml(a.status)}</p><p>${escapeHtml(a.purpose||\"\")}</p><button type=\"button\" data-del=\"${a.id}\">Delete</button></article>`).join(\"\");
-  return cards + `<article class=\"card\"><h2>New alchemy page</h2><label>Target product<input id=\"ap\" /></label><label>Purpose<textarea id=\"au\"></textarea></label><label>Ingredients, one per line<textarea id=\"ai\" placeholder=\"name \u2014 amount \u2014 role\"></textarea></label><label>Conditions<textarea id=\"ac\" placeholder=\"temperature, time, pH, solvent\"></textarea></label><label>Method<textarea id=\"am\"></textarea></label><label>Hazards<textarea id=\"ah\"></textarea></label><button class=\"primary\" type=\"button\" id=\"aadd\">Save page</button></article>`;
+  const cards = state.alchemy.map(a=>`<article class="card"><h2>${escapeHtml(a.product||"Untitled")}</h2><p class="brass">${escapeHtml(a.status)}</p><p>${escapeHtml(a.purpose||"")}</p><button type="button" data-del="${a.id}">Delete</button></article>`).join("");
+  return cards + `<article class="card"><h2>New alchemy page</h2><label>Target product<input id="ap" /></label><label>Purpose<textarea id="au"></textarea></label><label>Ingredients, one per line<textarea id="ai" placeholder="name — amount — role"></textarea></label><label>Conditions<textarea id="ac" placeholder="temperature, time, pH, solvent"></textarea></label><label>Method<textarea id="am"></textarea></label><label>Hazards<textarea id="ah"></textarea></label><button class="primary" type="button" id="aadd">Save page</button></article>`;
 }
 function settingsHtml(){
-  return `<article class=\"card\"><h2>Desk</h2><label>Name<input id=\"sn\" value=\"${escapeAttr(state.profile.chemistName)}\" /></label><label>Motto<input id=\"sm\" value=\"${escapeAttr(state.profile.motto)}\" /></label><button class=\"primary\" type=\"button\" id=\"ssave\">Save name</button></article><article class=\"card\"><h2>Backup</h2><p class=\"muted\">Same JSON shape as the hosted desk. Import replaces this file\u2019s saved desk.</p><div class=\"row\"><button class=\"primary\" type=\"button\" id=\"export\">Export backup</button><label class=\"btn\">Import backup<input id=\"import\" type=\"file\" accept=\"application/json,.json\" hidden /></label></div></article><article class=\"card\"><h2>License</h2><p>MIT License. Copyright (c) 2026 Shrinjoy Ghosh. Source: github.com/Gitersg/shakti-cauldron</p></article>`;
+  return `<article class="card"><h2>Desk</h2><label>Name<input id="sn" value="${escapeAttr(state.profile.chemistName)}" /></label><label>Motto<input id="sm" value="${escapeAttr(state.profile.motto)}" /></label><button class="primary" type="button" id="ssave">Save name</button></article><article class="card"><h2>Backup</h2><p class="muted">Same JSON shape as the hosted desk. Import replaces this file’s saved desk.</p><div class="row"><button class="primary" type="button" id="export">Export backup</button><label class="btn">Import backup<input id="import" type="file" accept="application/json,.json" hidden /></label></div></article><article class="card"><h2>License</h2><p>MIT License. Copyright (c) 2026 Shrinjoy Ghosh. Source: github.com/Gitersg/shakti-cauldron</p></article>`;
 }
 function escapeHtml(s) {
   return String(s)
-    .replace(/&/g, \"&\" + \"amp;\")
-    .replace(/</g, \"&\" + \"lt;\")
-    .replace(/>/g, \"&\" + \"gt;\")
-    .replace(/\"/g, \"&\" + \"quot;\");
+    .replace(/&/g, "&" + "amp;")
+    .replace(/</g, "&" + "lt;")
+    .replace(/>/g, "&" + "gt;")
+    .replace(/"/g, "&" + "quot;");
 }
 function escapeAttr(s){ return escapeHtml(s); }
-document.querySelector(\"nav\").addEventListener(\"click\", (event)=>{
-  const btn = event.target.closest(\"button\"); if(!btn) return; view = btn.dataset.view; paint();
+document.querySelector("nav").addEventListener("click", (event)=>{
+  const btn = event.target.closest("button"); if(!btn) return; view = btn.dataset.view; paint();
 });
-document.getElementById(\"app\").addEventListener(\"change\", (event)=>{
+document.getElementById("app").addEventListener("change", (event)=>{
   const t = event.target;
   if(t.dataset.check){
     const mission = state.missions.find(m=>m.id===t.dataset.check);
     const stepRow = mission && mission.steps.find(s=>s.id===t.dataset.step);
-    if(stepRow && mission.status!==\"done\") stepRow.done = t.checked;
+    if(stepRow && mission.status!=="done") stepRow.done = t.checked;
     save();
   }
 });
-document.getElementById(\"app\").addEventListener(\"input\", (event)=>{
+document.getElementById("app").addEventListener("input", (event)=>{
   const t = event.target;
   if(t.dataset.notes){
     const mission = state.missions.find(m=>m.id===t.dataset.notes);
@@ -147,67 +147,67 @@ document.getElementById(\"app\").addEventListener(\"input\", (event)=>{
     localStorage.setItem(KEY, JSON.stringify(state));
   }
 });
-document.getElementById(\"app\").addEventListener(\"click\", (event)=>{
+document.getElementById("app").addEventListener("click", (event)=>{
   const t = event.target;
   if(t.dataset.seal){
     const mission = state.missions.find(m=>m.id===t.dataset.seal);
-    if(!mission || mission.status===\"done\") return;
-    if(mission.steps.some(s=>!s.done)){ alert(\"Check every step before you seal.\"); return; }
+    if(!mission || mission.status==="done") return;
+    if(mission.steps.some(s=>!s.done)){ alert("Check every step before you seal."); return; }
     const gain = Math.max(1, Math.round(mission.xp * state.profile.xpMultiplier));
-    mission.status=\"done\"; mission.awardedXp=gain; mission.completedAt=new Date().toISOString();
+    mission.status="done"; mission.awardedXp=gain; mission.completedAt=new Date().toISOString();
     state.xp += gain;
-    state.log.unshift({id:uid(), at:mission.completedAt, text:\"Sealed \"+mission.title, xp:gain});
+    state.log.unshift({id:uid(), at:mission.completedAt, text:"Sealed "+mission.title, xp:gain});
     save();
   }
   if(t.dataset.reopen){
     const mission = state.missions.find(m=>m.id===t.dataset.reopen);
-    if(!mission || mission.status!==\"done\") return;
+    if(!mission || mission.status!=="done") return;
     state.xp = Math.max(0, state.xp - mission.awardedXp);
-    mission.status=\"open\"; mission.awardedXp=0; mission.completedAt=undefined;
+    mission.status="open"; mission.awardedXp=0; mission.completedAt=undefined;
     save();
   }
   if(t.dataset.del){ state.alchemy = state.alchemy.filter(a=>a.id!==t.dataset.del); save(); }
-  if(t.id===\"nadd\"){
-    const title = document.getElementById(\"nt\").value.trim();
+  if(t.id==="nadd"){
+    const title = document.getElementById("nt").value.trim();
     if(!title) return;
-    const lines = document.getElementById(\"ns\").value.split(\"\\n\").map(s=>s.trim()).filter(Boolean);
-    state.missions.unshift({ id:uid(), title, kind:\"custom\", track:document.getElementById(\"nk\").value.trim()||\"Custom\", brief:document.getElementById(\"nb\").value.trim(), steps:(lines.length?lines:[\"Do the work\"]).map(step), xp:Number(document.getElementById(\"nx\").value)||40, difficulty:2, status:\"open\", seeded:false, notes:\"\", benchCheck:\"\", safetyNote:\"\", awardedXp:0, createdAt:new Date().toISOString() });
+    const lines = document.getElementById("ns").value.split("\n").map(s=>s.trim()).filter(Boolean);
+    state.missions.unshift({ id:uid(), title, kind:"custom", track:document.getElementById("nk").value.trim()||"Custom", brief:document.getElementById("nb").value.trim(), steps:(lines.length?lines:["Do the work"]).map(step), xp:Number(document.getElementById("nx").value)||40, difficulty:2, status:"open", seeded:false, notes:"", benchCheck:"", safetyNote:"", awardedXp:0, createdAt:new Date().toISOString() });
     save();
   }
-  if(t.id===\"aadd\"){
-    const product = document.getElementById(\"ap\").value.trim();
-    if(!product){ alert(\"Name the target product.\"); return; }
+  if(t.id==="aadd"){
+    const product = document.getElementById("ap").value.trim();
+    if(!product){ alert("Name the target product."); return; }
     const now = new Date().toISOString();
-    const ingredients = document.getElementById(\"ai\").value.split(\"\\n\").filter(s=>s.trim()).map(line=>{
-      const [name,amount,role] = line.split(\"\u2014\").map(s=>s.trim());
-      return {id:uid(), name:name||line.trim(), amount:amount||\"\", role:role||\"\"};
+    const ingredients = document.getElementById("ai").value.split("\n").filter(s=>s.trim()).map(line=>{
+      const [name,amount,role] = line.split("—").map(s=>s.trim());
+      return {id:uid(), name:name||line.trim(), amount:amount||"", role:role||""};
     });
-    state.alchemy.unshift({ id:uid(), product, purpose:document.getElementById(\"au\").value, ingredients: ingredients.length?ingredients:[{id:uid(),name:\"\",amount:\"\",role:\"\"}], temperature:\"\", time:\"\", ph:\"\", solvent:\"\", atmosphere:document.getElementById(\"ac\").value, method:document.getElementById(\"am\").value, observations:\"\", hazards:document.getElementById(\"ah\").value, yieldNote:\"\", status:\"idea\", extra:[], createdAt:now, updatedAt:now });
+    state.alchemy.unshift({ id:uid(), product, purpose:document.getElementById("au").value, ingredients: ingredients.length?ingredients:[{id:uid(),name:"",amount:"",role:""}], temperature:"", time:"", ph:"", solvent:"", atmosphere:document.getElementById("ac").value, method:document.getElementById("am").value, observations:"", hazards:document.getElementById("ah").value, yieldNote:"", status:"idea", extra:[], createdAt:now, updatedAt:now });
     save();
   }
-  if(t.id===\"ssave\"){
-    state.profile.chemistName = document.getElementById(\"sn\").value;
-    state.profile.motto = document.getElementById(\"sm\").value;
+  if(t.id==="ssave"){
+    state.profile.chemistName = document.getElementById("sn").value;
+    state.profile.motto = document.getElementById("sm").value;
     save();
   }
-  if(t.id===\"export\"){
-    const file = { app:\"shakti-cauldron\", version:1, exportedAt:new Date().toISOString(), xp:state.xp, profile:state.profile, missions:state.missions, alchemy:state.alchemy, log:state.log };
-    const blob = new Blob([JSON.stringify(file,null,2)], {type:\"application/json\"});
+  if(t.id==="export"){
+    const file = { app:"shakti-cauldron", version:1, exportedAt:new Date().toISOString(), xp:state.xp, profile:state.profile, missions:state.missions, alchemy:state.alchemy, log:state.log };
+    const blob = new Blob([JSON.stringify(file,null,2)], {type:"application/json"});
     const url = URL.createObjectURL(blob);
-    const a = document.createElement(\"a\"); a.href=url; a.download=\"shakti-cauldron-backup.json\"; a.click();
+    const a = document.createElement("a"); a.href=url; a.download="shakti-cauldron-backup.json"; a.click();
     URL.revokeObjectURL(url);
   }
 });
-document.getElementById(\"app\").addEventListener(\"change\", async (event)=>{
-  if(event.target.id!==\"import\") return;
+document.getElementById("app").addEventListener("change", async (event)=>{
+  if(event.target.id!=="import") return;
   const file = event.target.files && event.target.files[0];
   if(!file) return;
   try {
     const raw = JSON.parse(await file.text());
-    if(raw.app!==\"shakti-cauldron\" || raw.version!==1) throw new Error(\"shape\");
+    if(raw.app!=="shakti-cauldron" || raw.version!==1) throw new Error("shape");
     state = { xp:raw.xp, profile:raw.profile, missions:raw.missions, alchemy:raw.alchemy, log:raw.log||[] };
     save();
-  } catch(e){ alert(\"That file is not a Shakti Cauldron backup.\"); }
+  } catch(e){ alert("That file is not a Shakti Cauldron backup."); }
 });
 paint();
 </script>
