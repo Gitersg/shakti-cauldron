@@ -22,8 +22,8 @@ See [SAFETY.md](SAFETY.md).
 
 ## Use it
 
-1. Download [index.html](index.html), or use **Download portable app** inside the hosted desk.
-2. Open the file. Double-click is enough.
+1. In the hosted desk, use **Download portable app**. That is one HTML file. Open it. Nothing else to install.
+2. Or download this repository as a ZIP, unzip, and open `index.html`. Keep the `cauldron-*.js` files in the same folder.
 3. Work a mission. Check every step. Seal it. XP lands once.
 4. Export a JSON backup before you clear the browser.
 
