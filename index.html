@@ -57,7 +57,7 @@
 </header>
 <main id="app"></main>
 <footer>
-  MIT License. Copyright (c) 2026 Shrinjoy Ghosh. Version 1.2.0. Data stays in this browser.
+  MIT License. Copyright (c) 2026 Shrinjoy Ghosh. Version 1.2.1. Data stays in this browser.
   No home recipes for hazardous concentrates, drugs, or explosives. A phenyl page is a plan, not a mix sheet.
 </footer>
 <dialog id="writer">
@@ -179,7 +179,7 @@ let confirmBank = "";
 let drillNote = "";
 const PBANK = "shakti-cauldron-portable-bank-v1";
 const BANK_MAX = 4000;
-const PATTERN = "---\nTrack: Acids\nQ: A solution of pH 3 is\nA) strongly basic\nB) weakly basic\nC) acidic\nD) neutral\nAnswer: C\nWhy: Below 7 is acidic. 7 is neutral water.\n---\nTrack: Atoms\nQ: The atomic number counts\nA) neutrons\nB) protons\nC) bonds\nD) only valence electrons\nAnswer: B\nWhy: Protons name the element.\n";
+const PATTERN = "---\nTrack: Acids\nQ: A solution of pH 3 is\nA) strongly basic\nB) weakly basic\nC) acidic\nD) neutral\nAnswer: C\nWhy: Below 7 is acidic. 7 is neutral water.\n---\nTrack: Atoms\nQ: The atomic number counts\nA) neutrons\nB) protons\nC) bonds\nD) only valence electrons\nAnswer: B\nWhy: Protons name the element.\n---\nTrack: Your track\nQ: Write the question here\nA) first choice\nB) second choice\nC) third choice\nD) fourth choice\nAnswer: A\nWhy: Write why the answer is right. You can delete this line.\n";
 function cleanField(value, max){ return String(value||"").replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g,"").trim().slice(0, max); }
 function readAnswer(value){
   if(typeof value==="number" && value>=1 && value<=4) return value-1;
@@ -348,7 +348,7 @@ function drillsHtml(){
       : confirmBank==="replace"
         ? `<p>Replace deletes the questions already stored. Drill XP you already earned stays.</p><div class="row"><button class="primary" type="button" id="bank-replace-paste">Replace from this paste</button><label class="btn">Choose replacement file<input id="bank-replace-file" type="file" accept=".txt,.md,.json,text/plain,application/json" hidden /></label><button type="button" id="bank-cancel">Keep the bank</button></div>`
         : "";
-    return `<article class="card"><p class="brass">Question bank · ${bank.length} of ${BANK_MAX}</p><h2>Put your own checks here</h2><p class="muted">Paste or choose a file. Up to ${BANK_MAX} questions. No daily reset. A right answer pays 6 XP until ${xpToReach(10)} drill XP, which reaches Equilibrium Eye, rank 10. After that, drills pay nothing.</p><pre class="card">${escapeHtml(PATTERN)}</pre><div class="row"><button type="button" id="bank-pattern">Download the pattern</button><button type="button" id="bank-export">Download my bank</button><button type="button" id="bank-practice">Practice</button></div><label>Paste questions<textarea id="bank-text">${escapeHtml(bankDraft)}</textarea></label><div class="row"><button class="primary" type="button" id="bank-add">Add into the bank</button><button type="button" id="bank-ask-replace">Replace from a file or this paste</button><label class="btn">Add a file<input id="bank-file" type="file" accept=".txt,.md,.json,text/plain,application/json" hidden /></label><button type="button" id="bank-ask-clear" ${bank.length?"":"disabled"}>Clear the bank</button></div>${warn}${bankNote?`<p class="brass">${escapeHtml(bankNote)}</p>`:""}</article>`;
+    return `<article class="card"><p class="brass">Question bank · ${bank.length} of ${BANK_MAX}</p><h2>Put your own checks here</h2><p class="muted">Keep the shape below. Fill the template in the box, or download it, fill the file, and add that file. Up to ${BANK_MAX} questions. No daily reset. A right answer pays 6 XP until ${xpToReach(10)} drill XP, rank 10. After that, drills pay nothing.</p><pre class="card">${escapeHtml(PATTERN)}</pre><div class="row"><button class="primary" type="button" id="bank-fill">Put the template in the box</button><button type="button" id="bank-pattern">Download the template</button><button type="button" id="bank-export">Download my bank</button><button type="button" id="bank-practice">Practice</button></div><label>Paste questions<textarea id="bank-text" placeholder="The template lands here. Change the words, then add.">${escapeHtml(bankDraft)}</textarea></label><div class="row"><button class="primary" type="button" id="bank-add">Add into the bank</button><button type="button" id="bank-ask-replace">Replace from a file or this paste</button><label class="btn">Add a file<input id="bank-file" type="file" accept=".txt,.md,.json,text/plain,application/json" hidden /></label><button type="button" id="bank-ask-clear" ${bank.length?"":"disabled"}>Clear the bank</button></div>${warn}${bankNote?`<p class="brass">${escapeHtml(bankNote)}</p>`:""}</article>`;
   }
   const deck = activeDeck();
   const row = deck[drillIndex % deck.length];
@@ -521,7 +521,8 @@ document.getElementById("app").addEventListener("click", (event)=>{
   if(t.id==="drill-next"){ drillPick = null; drillNote = ""; drillIndex += 1; paint(); return; }
   if(t.id==="bank-open"){ bankMode = true; view = "drills"; paint(); return; }
   if(t.id==="bank-practice"){ bankMode = false; view = "drills"; paint(); return; }
-  if(t.id==="bank-pattern"){ downloadText("mcq-pattern.txt", PATTERN); return; }
+  if(t.id==="bank-pattern"){ downloadText("mcq-template.txt", PATTERN); return; }
+  if(t.id==="bank-fill"){ bankDraft = PATTERN; bankNote = "Template is in the box. Change the words, then press Add into the bank."; paint(); return; }
   if(t.id==="bank-export"){
     if(!bank.length){ bankNote = "The bank is empty, so there is nothing to download."; paint(); return; }
     downloadText("shakti-question-bank.txt", bankToText(bank)+"\n");

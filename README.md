@@ -4,7 +4,7 @@ Local-first chemistry mastery desk by [Shrinjoy Ghosh](https://github.com/Giters
 
 [![Download the app](https://img.shields.io/badge/Download-one%20HTML%20file-3d9a86?style=for-the-badge)](https://github.com/Gitersg/shakti-cauldron/releases/latest/download/shakti-cauldron.html)
 
-**[Download Shakti Cauldron 1.2.0](https://github.com/Gitersg/shakti-cauldron/releases/latest/download/shakti-cauldron.html)** — one click, one HTML file. Save it. Open it in any browser. Nothing else to install. No account and no server. Missions, ranks, alchemy notes, the question bank, and settings stay in that browser until you export a backup.
+**[Download Shakti Cauldron 1.2.1](https://github.com/Gitersg/shakti-cauldron/releases/latest/download/shakti-cauldron.html)** — one click, one HTML file. Save it. Open it in any browser. Nothing else to install. No account and no server. Missions, ranks, alchemy notes, the question bank, and settings stay in that browser until you export a backup.
 
 `index.html` in this repository is that same file. Open it. Do not look for extra scripts.
 
@@ -22,7 +22,7 @@ The hosted desk carries the longer guided path. This download is the starter set
 
 ## Question bank
 
-On Drills, open **Question bank**. Paste text, or choose a `.txt` / `.json` file. The bank holds up to 4,000 of your own checks. A right answer pays 6 XP until the total reaches 2,601, which is rank 10, Equilibrium Eye. After that the reason still shows and the XP stops. There is no daily reset, and the desk does not keep a list of which question already paid.
+On Drills, open **Question bank**. The template is on that screen. Press **Put the template in the box**, change the words, then add it. Or press **Download the template**, fill `mcq-template.txt`, and choose that file. The bank holds up to 4,000 checks. A right answer pays 6 XP until the total reaches 2,601, which is rank 10, Equilibrium Eye. After that the reason still shows and the XP stops. There is no daily reset, and the desk does not keep a list of which question already paid.
 
 Separate each question with a line that is only `---`.
 
