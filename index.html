@@ -57,7 +57,7 @@
 </header>
 <main id="app"></main>
 <footer>
-  MIT License. Copyright (c) 2026 Shrinjoy Ghosh. Version 1.1.0. Data stays in this browser.
+  MIT License. Copyright (c) 2026 Shrinjoy Ghosh. Version 1.2.0. Data stays in this browser.
   No home recipes for hazardous concentrates, drugs, or explosives. A phenyl page is a plan, not a mix sheet.
 </footer>
 <dialog id="writer">
@@ -151,7 +151,7 @@ function fresh(){
     missions: starter(),
     alchemy: [],
     log: [],
-    drillClaims: {}
+    drillXp: 0
   };
 }
 function scrub(data){
@@ -160,9 +160,11 @@ function scrub(data){
   const fallback = tracks[0] || "Foundations";
   data.profile.tracks = tracks.length ? tracks : [fallback];
   (data.missions||[]).forEach((m)=>{ if(String(m.track||"").trim().toLowerCase()==="custom") m.track = fallback; });
-  if(!data.drillClaims) data.drillClaims = {};
   if(!Array.isArray(data.log)) data.log = [];
   if(!Array.isArray(data.alchemy)) data.alchemy = [];
+  const earned = Number(data.drillXp);
+  data.drillXp = Number.isFinite(earned) ? Math.max(0, Math.min(xpToReach(10), earned)) : 0;
+  delete data.drillClaims;
   return data;
 }
 let state = scrub(load());
@@ -170,6 +172,145 @@ let view = "missions";
 let pendingDelete = "";
 let drillIndex = 0;
 let drillPick = null;
+let bankMode = false;
+let bankDraft = "";
+let bankNote = "";
+let confirmBank = "";
+let drillNote = "";
+const PBANK = "shakti-cauldron-portable-bank-v1";
+const BANK_MAX = 4000;
+const PATTERN = "---\nTrack: Acids\nQ: A solution of pH 3 is\nA) strongly basic\nB) weakly basic\nC) acidic\nD) neutral\nAnswer: C\nWhy: Below 7 is acidic. 7 is neutral water.\n---\nTrack: Atoms\nQ: The atomic number counts\nA) neutrons\nB) protons\nC) bonds\nD) only valence electrons\nAnswer: B\nWhy: Protons name the element.\n";
+function cleanField(value, max){ return String(value||"").replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g,"").trim().slice(0, max); }
+function readAnswer(value){
+  if(typeof value==="number" && value>=1 && value<=4) return value-1;
+  const token = String(value==null?"":value).trim().toUpperCase();
+  if(token==="A"||token==="1") return 0;
+  if(token==="B"||token==="2") return 1;
+  if(token==="C"||token==="3") return 2;
+  if(token==="D"||token==="4") return 3;
+  return null;
+}
+function asQuestion(track, prompt, choices, answer, why){
+  if(!prompt || !choices || choices.length!==4 || answer===null || answer===undefined) return null;
+  const four = choices.map((choice)=>cleanField(choice,180));
+  if(four.some((choice)=>!choice)) return null;
+  const text = cleanField(prompt,400);
+  if(!text) return null;
+  return { track: cleanField(track||"Bank",40)||"Bank", prompt:text, choices:four, answer:answer, why:cleanField(why||"",400) };
+}
+function sanitizeQ(raw){
+  if(!raw || typeof raw!=="object") return null;
+  const answer = raw.answer===0 || raw.answer===1 || raw.answer===2 || raw.answer===3 ? raw.answer : null;
+  const built = asQuestion(raw.track, raw.prompt, Array.isArray(raw.choices)?raw.choices:[], answer, raw.why);
+  if(!built) return null;
+  built.id = cleanField(raw.id||"",80) || uid();
+  return built;
+}
+function loadPortableBank(){
+  try {
+    const raw = JSON.parse(localStorage.getItem(PBANK)||"null");
+    if(!Array.isArray(raw)) return [];
+    return raw.map(sanitizeQ).filter(Boolean).slice(0, BANK_MAX);
+  } catch(e){ return []; }
+}
+function savePortableBank(next){
+  try { localStorage.setItem(PBANK, JSON.stringify(next)); return true; }
+  catch(e){ return false; }
+}
+let bank = loadPortableBank();
+function starterDeck(){ return DRILLS.map((row)=>({id:row[0], track:row[1], prompt:row[2], choices:row[3], answer:row[4], why:row[5]})); }
+function activeDeck(){ return bank.length ? bank : starterDeck(); }
+function lineField(line, name){
+  const match = line.match(new RegExp("^(?:"+name+")\\s*[:.)\\-]\\s*(.*)$","i"));
+  return match ? match[1] : null;
+}
+function parseBank(raw){
+  const text = String(raw||"").replace(/^\uFEFF/,"").replace(/\r\n/g,"\n").trim();
+  if(!text) return { questions:[], skipped:0, note:"Nothing was pasted." };
+  if(text.length>2000000) return { questions:[], skipped:0, note:"That file is too large. Keep it under 2 million characters." };
+  if(text.startsWith("[") || text.startsWith("{")) return parseBankJson(text);
+  const questions = [];
+  let skipped = 0;
+  text.split(/\n\s*---\s*(?:\n|$)/).forEach((block)=>{
+    if(!block.trim()) return;
+    if(questions.length>=BANK_MAX){ skipped += 1; return; }
+    let track="Bank", prompt="", why="", answer=null, saw=false;
+    const choices=["","","",""];
+    block.split("\n").forEach((rawLine)=>{
+      const line = rawLine.trim();
+      if(!line) return;
+      const trackValue = lineField(line,"track");
+      if(trackValue!==null){ track = trackValue; return; }
+      const questionValue = lineField(line,"q|question");
+      if(questionValue!==null){ prompt = questionValue; saw = true; return; }
+      const whyValue = lineField(line,"why|reason");
+      if(whyValue!==null){ why = whyValue; return; }
+      const answerValue = lineField(line,"answer|ans");
+      if(answerValue!==null){ answer = readAnswer(answerValue); return; }
+      const choice = line.match(/^([A-Da-d])\s*[).:\-]\s*(.+)$/);
+      if(choice){
+        const index = "ABCD".indexOf(choice[1].toUpperCase());
+        if(index>=0) choices[index] = choice[2];
+      }
+    });
+    const built = asQuestion(track, prompt, choices, answer, why);
+    if(!built || !saw) skipped += 1;
+    else questions.push(built);
+  });
+  return { questions, skipped, note: questions.length ? "" : "No questions found. Use Q, A) B) C) D), Answer, and a line that is only ---." };
+}
+function parseBankJson(text){
+  let data;
+  try { data = JSON.parse(text); }
+  catch(e){ return { questions:[], skipped:0, note:"That is not valid JSON." }; }
+  const rows = Array.isArray(data) ? data : (data && Array.isArray(data.questions) ? data.questions : null);
+  if(!rows) return { questions:[], skipped:0, note:"JSON must be an array of questions." };
+  const questions = [];
+  let skipped = 0;
+  rows.forEach((row)=>{
+    if(questions.length>=BANK_MAX){ skipped += 1; return; }
+    if(!row || typeof row!=="object"){ skipped += 1; return; }
+    const prompt = row.q || row.question || row.prompt || "";
+    const choices = Array.isArray(row.choices) ? row.choices : (Array.isArray(row.options) ? row.options : [row.a, row.b, row.c, row.d]);
+    const built = asQuestion(row.track, prompt, choices.map((choice)=>choice==null?"":String(choice)), readAnswer(row.answer), row.why || row.reason || "");
+    if(!built) skipped += 1;
+    else questions.push(built);
+  });
+  return { questions, skipped, note: questions.length ? "" : "No usable JSON questions. Each needs q, four choices, and answer." };
+}
+function mergeBank(parsed, mode){
+  const existing = mode==="replace" ? [] : bank.slice();
+  const seen = {};
+  existing.forEach((question)=>{ seen[question.prompt.trim().toLowerCase()] = true; });
+  const next = existing.slice();
+  let added = 0;
+  let skipped = parsed.skipped;
+  parsed.questions.forEach((question)=>{
+    const key = question.prompt.trim().toLowerCase();
+    if(seen[key] || next.length>=BANK_MAX){ skipped += 1; return; }
+    seen[key] = true;
+    question.id = uid();
+    next.push(question);
+    added += 1;
+  });
+  if(!added) return { ok:false, note: parsed.note || "Nothing new was added." };
+  if(!savePortableBank(next)) return { ok:false, note:"This browser could not store that many questions. The old bank was left alone." };
+  bank = next;
+  drillIndex = 0;
+  drillPick = null;
+  bankDraft = "";
+  return { ok:true, note:"Added "+added+"."+(skipped?" Skipped "+skipped+".":"") };
+}
+function bankToText(questions){
+  return questions.map((question)=>["Track: "+question.track,"Q: "+question.prompt,"A) "+question.choices[0],"B) "+question.choices[1],"C) "+question.choices[2],"D) "+question.choices[3],"Answer: "+"ABCD"[question.answer], question.why?("Why: "+question.why):""].filter(Boolean).join("\n")).join("\n---\n");
+}
+function downloadText(filename, text){
+  const blob = new Blob([text], {type:"text/plain;charset=utf-8"});
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url; link.download = filename; link.click();
+  URL.revokeObjectURL(url);
+}
 function load(){
   try { const raw = JSON.parse(localStorage.getItem(KEY)||""); if(raw && raw.missions) return raw; } catch(e){}
   return fresh();
@@ -201,16 +342,25 @@ function missionsHtml(){
   }).join("") || `<article class="card"><p class="muted">No missions yet. Use Write a mission. The form stays up here, not under the list.</p></article>`;
 }
 function drillsHtml(){
-  const row = DRILLS[drillIndex % DRILLS.length];
-  const today = todayKey();
-  const awarded = Object.values(state.drillClaims).filter((d)=>d===today).length;
-  const choices = row[3].map((choice,i)=>{
-    const show = drillPick!==null && (i===row[4] || i===drillPick);
-    const mark = show && i===row[4] ? "primary" : "";
+  if(bankMode){
+    const warn = confirmBank==="clear"
+      ? `<p>This deletes every question in the bank. Drill XP you already earned stays.</p><div class="row"><button class="primary" type="button" id="bank-clear-yes">Delete all questions</button><button type="button" id="bank-cancel">Keep them</button></div>`
+      : confirmBank==="replace"
+        ? `<p>Replace deletes the questions already stored. Drill XP you already earned stays.</p><div class="row"><button class="primary" type="button" id="bank-replace-paste">Replace from this paste</button><label class="btn">Choose replacement file<input id="bank-replace-file" type="file" accept=".txt,.md,.json,text/plain,application/json" hidden /></label><button type="button" id="bank-cancel">Keep the bank</button></div>`
+        : "";
+    return `<article class="card"><p class="brass">Question bank · ${bank.length} of ${BANK_MAX}</p><h2>Put your own checks here</h2><p class="muted">Paste or choose a file. Up to ${BANK_MAX} questions. No daily reset. A right answer pays 6 XP until ${xpToReach(10)} drill XP, which reaches Equilibrium Eye, rank 10. After that, drills pay nothing.</p><pre class="card">${escapeHtml(PATTERN)}</pre><div class="row"><button type="button" id="bank-pattern">Download the pattern</button><button type="button" id="bank-export">Download my bank</button><button type="button" id="bank-practice">Practice</button></div><label>Paste questions<textarea id="bank-text">${escapeHtml(bankDraft)}</textarea></label><div class="row"><button class="primary" type="button" id="bank-add">Add into the bank</button><button type="button" id="bank-ask-replace">Replace from a file or this paste</button><label class="btn">Add a file<input id="bank-file" type="file" accept=".txt,.md,.json,text/plain,application/json" hidden /></label><button type="button" id="bank-ask-clear" ${bank.length?"":"disabled"}>Clear the bank</button></div>${warn}${bankNote?`<p class="brass">${escapeHtml(bankNote)}</p>`:""}</article>`;
+  }
+  const deck = activeDeck();
+  const row = deck[drillIndex % deck.length];
+  const earned = Math.min(xpToReach(10), Number(state.drillXp)||0);
+  const choices = row.choices.map((choice,i)=>{
+    const show = drillPick!==null && (i===row.answer || i===drillPick);
+    const mark = show && i===row.answer ? "primary" : "";
     return `<button type="button" class="${mark}" data-pick="${i}" ${drillPick!==null?"disabled":""}>${escapeHtml(choice)}</button>`;
   }).join("");
-  const why = drillPick===null ? "" : `<p class="brass">${drillPick===row[4] ? "Held." : "Not this time."}</p><p>${escapeHtml(row[5])}</p><button type="button" id="drill-next">Next drill</button>`;
-  return `<article class="card"><p class="brass">${escapeHtml(row[1])} · ${awarded} of 5 count today · 6 XP</p><h2>${escapeHtml(row[2])}</h2><div class="row" style="margin-top:0.7rem">${choices}</div>${why}<p class="muted">Drills are ideas and refusals. No mix, no concentration, no procedure.</p></article>`;
+  const why = drillPick===null ? "" : `<p class="brass">${escapeHtml(drillNote)}</p><p>${escapeHtml(row.why||"")}</p><button type="button" id="drill-next">Next drill</button>`;
+  const source = bank.length ? ("Your bank · "+bank.length) : ("Starter set · "+DRILLS.length);
+  return `<article class="card"><div class="row"><button type="button" id="bank-open">Question bank</button></div><p class="brass">${escapeHtml(row.track)} · ${source} · ${earned} / ${xpToReach(10)} drill XP</p><h2>${escapeHtml(row.prompt)}</h2><div class="row" style="margin-top:0.7rem">${choices}</div>${why}<p class="muted">No daily reset. Right answers pay until rank 10, then they stop for good. The desk does not remember which question already paid.</p></article>`;
 }
 function alchemyHtml(){
   const cards = state.alchemy.map((a)=>`<article class="card"><h2>${escapeHtml(a.product||"Untitled")}</h2><p class="brass">${escapeHtml(a.status||"")}</p><p>${escapeHtml(a.purpose||"")}</p><button type="button" data-del="${escapeAttr(a.id)}">Delete page</button></article>`).join("");
@@ -290,6 +440,7 @@ document.getElementById("app").addEventListener("input", (event)=>{
     if(mission) mission.notes = String(t.value).slice(0,4000);
     localStorage.setItem(KEY, JSON.stringify(state));
   }
+  if(t.id==="bank-text") bankDraft = String(t.value);
 });
 document.getElementById("app").addEventListener("click", (event)=>{
   const t = event.target.closest("button");
@@ -338,29 +489,70 @@ document.getElementById("app").addEventListener("click", (event)=>{
   }
   if(t.dataset.del){ state.alchemy = state.alchemy.filter((a)=>a.id!==t.dataset.del); save(); return; }
   if(t.dataset.pick){
-    const row = DRILLS[drillIndex % DRILLS.length];
+    const deck = activeDeck();
+    const row = deck[drillIndex % deck.length];
     const pick = Number(t.dataset.pick);
     drillPick = pick;
-    if(pick===row[4]){
-      const today = todayKey();
-      const awarded = Object.values(state.drillClaims).filter((d)=>d===today).length;
-      if(state.drillClaims[row[0]]!==today && awarded<5){
-        state.drillClaims[row[0]] = today;
+    if(pick===row.answer){
+      const earned = Number(state.drillXp)||0;
+      const room = xpToReach(10) - earned;
+      if(room<=0) drillNote = "Right. Drill XP is already full, so this pays nothing.";
+      else {
+        const gain = Math.min(6, room);
         const before = levelFromXp(state.xp);
-        state.xp += 6;
-        state.log.unshift({id:uid(), at:new Date().toISOString(), text:"Drill held", xp:6});
+        state.xp += gain;
+        state.drillXp = earned + gain;
+        state.log.unshift({id:uid(), at:new Date().toISOString(), text:"Drill held", xp:gain});
         state.log = state.log.slice(0,40);
         const after = levelFromXp(state.xp);
+        const full = state.drillXp >= xpToReach(10);
+        drillNote = full ? "Right. +"+gain+" XP. Drill XP is now full." : "Right. +"+gain+" XP.";
         save();
         if(after>before){
           const rankName = ((state.profile.rankTitles||[]).find((r)=>r.level===after)||{}).title || ("Level "+after);
-          showCeremony("rise", rankName, "A drill held.", 6);
+          showCeremony("rise", rankName, "A drill held.", gain);
         }
-      } else save();
-    } else paint();
+        return;
+      }
+    } else drillNote = "Not this one. Read the reason. No XP for a miss.";
+    paint();
     return;
   }
-  if(t.id==="drill-next"){ drillPick = null; drillIndex += 1; paint(); return; }
+  if(t.id==="drill-next"){ drillPick = null; drillNote = ""; drillIndex += 1; paint(); return; }
+  if(t.id==="bank-open"){ bankMode = true; view = "drills"; paint(); return; }
+  if(t.id==="bank-practice"){ bankMode = false; view = "drills"; paint(); return; }
+  if(t.id==="bank-pattern"){ downloadText("mcq-pattern.txt", PATTERN); return; }
+  if(t.id==="bank-export"){
+    if(!bank.length){ bankNote = "The bank is empty, so there is nothing to download."; paint(); return; }
+    downloadText("shakti-question-bank.txt", bankToText(bank)+"\n");
+    return;
+  }
+  if(t.id==="bank-add"){
+    const result = mergeBank(parseBank(bankDraft), "add");
+    bankNote = result.note;
+    paint();
+    return;
+  }
+  if(t.id==="bank-ask-replace"){ confirmBank = "replace"; paint(); return; }
+  if(t.id==="bank-ask-clear"){ confirmBank = "clear"; paint(); return; }
+  if(t.id==="bank-cancel"){ confirmBank = ""; paint(); return; }
+  if(t.id==="bank-replace-paste"){
+    const result = mergeBank(parseBank(bankDraft), "replace");
+    bankNote = result.note;
+    if(result.ok) confirmBank = "";
+    paint();
+    return;
+  }
+  if(t.id==="bank-clear-yes"){
+    if(!savePortableBank([])){ bankNote = "Could not clear the stored bank."; paint(); return; }
+    bank = [];
+    drillIndex = 0;
+    drillPick = null;
+    confirmBank = "";
+    bankNote = "The question bank is empty. Drill XP already earned stays.";
+    paint();
+    return;
+  }
   if(t.id==="aadd"){
     const product = document.getElementById("ap").value.trim().slice(0,180);
     if(!product) return;
@@ -380,7 +572,7 @@ document.getElementById("app").addEventListener("click", (event)=>{
     return;
   }
   if(t.id==="export"){
-    const file = { app:"shakti-cauldron", version:1, exportedAt:new Date().toISOString(), xp:state.xp, profile:state.profile, missions:state.missions, alchemy:state.alchemy, log:state.log };
+    const file = { app:"shakti-cauldron", version:1, exportedAt:new Date().toISOString(), xp:state.xp, profile:state.profile, missions:state.missions, alchemy:state.alchemy, log:state.log, bank:bank, drillXp:Number(state.drillXp)||0 };
     const blob = new Blob([JSON.stringify(file,null,2)], {type:"application/json"});
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a"); a.href=url; a.download="shakti-cauldron-backup.json"; a.click();
@@ -388,7 +580,20 @@ document.getElementById("app").addEventListener("click", (event)=>{
   }
 });
 document.getElementById("app").addEventListener("change", async (event)=>{
-  if(event.target.id!=="import") return;
+  const target = event.target;
+  if(target.id==="bank-file" || target.id==="bank-replace-file"){
+    const file = target.files && target.files[0];
+    target.value = "";
+    if(!file) return;
+    if(file.size>2000000){ bankNote = "That file is too large. Keep it under 2 million characters."; paint(); return; }
+    const text = await file.text();
+    const result = mergeBank(parseBank(text), target.id==="bank-replace-file" ? "replace" : "add");
+    bankNote = result.note;
+    if(result.ok) confirmBank = "";
+    paint();
+    return;
+  }
+  if(target.id!=="import") return;
   const file = event.target.files && event.target.files[0];
   if(!file) return;
   try {
@@ -396,7 +601,11 @@ document.getElementById("app").addEventListener("change", async (event)=>{
     if(!raw || raw.app!=="shakti-cauldron" || raw.version!==1) throw new Error("shape");
     if(!Array.isArray(raw.missions) || raw.missions.length>400) throw new Error("missions");
     if(raw.alchemy && (!Array.isArray(raw.alchemy) || raw.alchemy.length>200)) throw new Error("alchemy");
-    state = scrub({ xp:Number(raw.xp)||0, profile:raw.profile, missions:raw.missions, alchemy:raw.alchemy||[], log:Array.isArray(raw.log)?raw.log.slice(0,80):[], drillClaims: state.drillClaims });
+    if(raw.bank && (!Array.isArray(raw.bank) || raw.bank.length>BANK_MAX)) throw new Error("bank");
+    const nextBank = Array.isArray(raw.bank) ? raw.bank.map(sanitizeQ).filter(Boolean).slice(0, BANK_MAX) : null;
+    if(nextBank && !savePortableBank(nextBank)) throw new Error("bank");
+    state = scrub({ xp:Number(raw.xp)||0, profile:raw.profile, missions:raw.missions, alchemy:raw.alchemy||[], log:Array.isArray(raw.log)?raw.log.slice(0,80):[], drillXp: raw.drillXp==null ? state.drillXp : Number(raw.drillXp)||0 });
+    if(nextBank) bank = nextBank;
     save();
   } catch(e){ document.getElementById("c-kicker").textContent = "Import stopped"; document.getElementById("c-title").textContent = "Not a Shakti Cauldron backup"; document.getElementById("c-body").textContent = "The file was left unused."; document.getElementById("c-xp").textContent = ""; document.getElementById("ceremony").showModal(); }
 });
