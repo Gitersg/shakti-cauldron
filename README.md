@@ -4,7 +4,7 @@ Local-first chemistry mastery desk by [Shrinjoy Ghosh](https://github.com/Giters
 
 [![Download the app](https://img.shields.io/badge/Download-one%20HTML%20file-3d9a86?style=for-the-badge)](https://github.com/Gitersg/shakti-cauldron/releases/latest/download/shakti-cauldron.html)
 
-**[Download Shakti Cauldron 1.2.1](https://github.com/Gitersg/shakti-cauldron/releases/latest/download/shakti-cauldron.html)** — one click, one HTML file. Save it. Open it in any browser. Nothing else to install. No account and no server. Missions, ranks, alchemy notes, the question bank, and settings stay in that browser until you export a backup.
+**[Download Shakti Cauldron 1.3.0](https://github.com/Gitersg/shakti-cauldron/releases/latest/download/shakti-cauldron.html)** — one click, one HTML file. Save it. Open it in any browser. Nothing else to install. No account and no server. The file uses the same bench layout as the hosted desk: sidebar, rank seal, and mission cards. Data stays in that browser until you export a backup. Settings has a danger zone that can delete all of it.
 
 `index.html` in this repository is that same file. Open it. Do not look for extra scripts.
 

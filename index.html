@@ -5,61 +5,108 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Shakti Cauldron</title>
 <meta name="description" content="Portable local-first chemistry mastery desk. One file, no install." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet" />
 <style>
-  :root { color-scheme: dark; --ink:#101412; --panel:#1b2420; --cream:#f3ead7; --muted:#b3a78f; --line:#33423c; --verd:#3d9a86; --verd-ink:#06241e; --brass:#d4b072; }
+  :root { color-scheme: dark; --ink:#101412; --panel:#1b2420; --raised:#24302b; --cream:#f3ead7; --muted:#b3a78f; --line:#33423c; --verd:#3d9a86; --verd-ink:#06241e; --brass:#d4b072; --danger:#c46a4a; }
   * { box-sizing: border-box; }
-  body { margin: 0; font: 16px/1.5 Georgia, "Segoe UI", sans-serif; background:
-    radial-gradient(ellipse 90% 42% at 50% -12%, color-mix(in srgb, var(--brass) 28%, transparent), transparent 62%),
-    var(--ink); color: var(--cream); }
-  header, main, footer { max-width: 880px; margin: 0 auto; padding: 1rem 1.1rem; }
-  h1, h2 { font-weight: 560; letter-spacing: 0; }
-  h1 { font-size: 2rem; margin: 0.2rem 0; }
-  button, .btn { min-height: 44px; border-radius: 10px; border: 1px solid var(--line); background: #24302b; color: var(--cream); padding: 0.45rem 0.8rem; cursor: pointer; font: inherit; }
+  html, body { margin: 0; min-height: 100%; background: var(--ink); color: var(--cream); }
+  body {
+    font: 16px/1.5 Outfit, "Segoe UI", sans-serif;
+    background:
+      radial-gradient(ellipse 80% 36% at 70% -10%, color-mix(in srgb, var(--brass) 22%, transparent), transparent 60%),
+      var(--ink);
+  }
+  h1, h2, .display { font-family: Fraunces, Georgia, serif; font-weight: 560; letter-spacing: 0; line-height: 1.15; }
+  h1 { font-size: clamp(2rem, 4vw, 2.6rem); margin: 0.15rem 0 0.4rem; }
+  h2 { font-size: 1.45rem; margin: 0.2rem 0 0.45rem; }
+  button, .btn { min-height: 44px; border-radius: 10px; border: 1px solid var(--line); background: var(--raised); color: var(--cream); padding: 0.45rem 0.85rem; cursor: pointer; font: inherit; }
   button:active:not(:disabled) { scale: 0.96; }
   button.primary { background: var(--verd); color: var(--verd-ink); border-color: var(--verd); font-weight: 600; }
+  button.danger, .danger-btn { background: transparent; color: #f0c2b4; border-color: var(--danger); }
   button:disabled { opacity: 0.45; }
-  nav, .row { display: flex; flex-wrap: wrap; gap: 0.45rem; align-items: center; }
-  nav { margin: 0.8rem 0 0; }
-  nav button[aria-current="page"] { border-color: var(--brass); color: var(--brass); }
-  .card { border: 1px solid var(--line); background: var(--panel); border-radius: 12px; padding: 0.9rem 1rem; margin: 0.7rem 0; box-shadow: inset 0 1px 0 color-mix(in srgb, var(--cream) 10%, transparent); }
-  label { display: block; color: var(--muted); font-size: 0.9rem; margin-top: 0.6rem; }
-  input, textarea, select { width: 100%; margin-top: 0.25rem; background: var(--ink); color: var(--cream); border: 1px solid var(--line); border-radius: 8px; padding: 0.45rem 0.6rem; font: inherit; }
+  button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible { outline: 2px solid var(--verd); outline-offset: 2px; }
+  a { color: var(--brass); }
+  .shell { display: flex; min-height: 100vh; }
+  aside { width: 15.5rem; flex: none; display: flex; flex-direction: column; gap: 0.35rem; padding: 1.4rem 1rem; border-right: 1px solid var(--line); }
+  .brand { display: flex; gap: 0.75rem; align-items: center; margin-bottom: 1.2rem; }
+  .mark { width: 2.6rem; height: 2.6rem; border-radius: 10px; display: grid; place-items: center; background: var(--verd); color: var(--verd-ink); font-family: Fraunces, Georgia, serif; font-size: 1.25rem; }
+  .brand strong { display: block; font-family: Fraunces, Georgia, serif; font-size: 1.05rem; font-weight: 560; }
+  .brand span { color: var(--brass); font-size: 0.88rem; }
+  nav { display: flex; flex-direction: column; gap: 0.25rem; }
+  nav button { text-align: left; background: transparent; border-color: transparent; color: var(--muted); }
+  nav button[aria-current="page"] { background: var(--raised); border-color: var(--line); color: var(--cream); }
+  .write { margin-top: 0.8rem; }
+  .aside-note { margin-top: auto; color: var(--muted); font-size: 0.85rem; }
+  .stage { flex: 1; min-width: 0; padding: 1.6rem 1.4rem 2.5rem; }
+  .stage-inner { max-width: 52rem; }
+  .kicker { color: var(--brass); font-size: 0.92rem; margin: 0; }
+  .card { border: 1px solid var(--line); background: var(--panel); border-radius: 12px; padding: 1rem 1.05rem; margin: 0.85rem 0; box-shadow: inset 0 1px 0 color-mix(in srgb, var(--cream) 10%, transparent); }
+  .rank-row, .stats { display: flex; flex-wrap: wrap; gap: 0.8rem; align-items: center; justify-content: space-between; }
+  .stats { align-items: stretch; }
+  .stat { flex: 1 1 8rem; margin: 0; }
+  .stat-n { font-size: 2rem; margin: 0.2rem 0 0; }
+  .rank-title { font-size: 2rem; color: var(--brass); margin: 0.15rem 0; }
+  .seal { width: 6.6rem; height: 6.6rem; border-radius: 999px; display: grid; place-items: center; background: conic-gradient(var(--verd) calc(var(--pct) * 1%), #0c100e 0); }
+  .seal span { width: 5rem; height: 5rem; border-radius: 999px; display: grid; place-items: center; background: var(--panel); box-shadow: inset 0 0 0 1px var(--line); font-family: Fraunces, Georgia, serif; }
+  .row { display: flex; flex-wrap: wrap; gap: 0.45rem; align-items: center; }
+  .step { display: flex; align-items: flex-start; gap: 0.7rem; color: var(--cream); margin: 0.35rem 0; }
+  label { display: block; color: var(--muted); font-size: 0.92rem; margin-top: 0.65rem; }
+  label.step, label.btn { color: var(--cream); margin-top: 0; }
+  label.btn { display: inline-flex; align-items: center; }
+  input, textarea, select { width: 100%; margin-top: 0.28rem; background: var(--ink); color: var(--cream); border: 1px solid var(--line); border-radius: 8px; padding: 0.5rem 0.65rem; font: inherit; }
+  input[type="checkbox"], input[type="file"], input[type="range"] { width: auto; margin-top: 0.15rem; }
+  .step input { width: 1.15rem; height: 1.15rem; flex: none; accent-color: var(--verd); }
   .muted { color: var(--muted); }
   .brass { color: var(--brass); }
-  .bar { height: 8px; background: var(--ink); border-radius: 8px; overflow: hidden; margin-top: 0.4rem; }
-  .bar > span { display: block; height: 100%; background: var(--verd); }
-  footer { color: var(--muted); font-size: 0.9rem; }
-  a { color: var(--brass); }
+  .danger { border-color: #8f4a3a; background: radial-gradient(circle at 0 0, color-mix(in srgb, var(--danger) 18%, transparent), transparent 55%), var(--panel); }
+  footer { color: var(--muted); font-size: 0.88rem; margin-top: 1.5rem; }
   dialog { border: 1px solid var(--brass); border-radius: 16px; background: var(--panel); color: var(--cream); width: min(100% - 1.5rem, 32rem); padding: 1rem 1.1rem 1.2rem; }
   dialog::backdrop { background: color-mix(in srgb, var(--ink) 78%, transparent); }
   #ceremony { text-align: center; }
-  .ring { width: 5.5rem; height: 5.5rem; margin: 0 auto 0.8rem; border-radius: 999px; display: grid; place-items: center;
-    background: conic-gradient(from 24deg, var(--brass), var(--verd), var(--brass)); }
+  .ring { width: 5.5rem; height: 5.5rem; margin: 0 auto 0.8rem; border-radius: 999px; display: grid; place-items: center; background: conic-gradient(from 24deg, var(--brass), var(--verd), var(--brass)); }
   .ring span { width: 4rem; height: 4rem; border-radius: 999px; background: var(--ink); box-shadow: inset 0 0 0 1px var(--brass); }
+  pre.card { white-space: pre-wrap; color: var(--cream); font: 0.92rem/1.45 ui-monospace, Consolas, monospace; }
+  @media (max-width: 800px) {
+    .shell { display: block; }
+    aside { width: auto; border-right: 0; border-bottom: 1px solid var(--line); }
+    nav { flex-direction: row; flex-wrap: wrap; }
+    .aside-note { display: none; }
+    .stage { padding: 1rem 0.9rem 2rem; }
+  }
   @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 </style>
 </head>
 <body>
-<header>
-  <p class="brass">Shakti Cauldron · one file</p>
-  <h1 id="who">Chemist</h1>
-  <p class="muted" id="motto"></p>
-  <p class="brass" id="rank"></p>
-  <div class="bar" aria-hidden="true"><span id="bar"></span></div>
-  <p class="muted" id="xp"></p>
+<div class="shell">
+<aside>
+  <div class="brand">
+    <div class="mark" aria-hidden="true">⚗</div>
+    <div>
+      <strong>Shakti Cauldron</strong>
+      <span>Chemistry mastery desk</span>
+    </div>
+  </div>
+  <p class="muted" id="who" style="margin:0 0 0.8rem">Chemist</p>
   <nav>
+    <button type="button" data-view="desk">Atelier</button>
     <button type="button" data-view="missions">Missions</button>
     <button type="button" data-view="drills">Drills</button>
     <button type="button" data-view="alchemy">Alchemy</button>
-    <button type="button" data-view="settings">Backup</button>
-    <button type="button" class="primary" id="open-writer">Write a mission</button>
+    <button type="button" data-view="settings">Settings</button>
   </nav>
-</header>
+  <button type="button" class="primary write" id="open-writer">Write a mission</button>
+  <p class="aside-note">One file. Nothing leaves this browser unless you export it.</p>
+</aside>
+<div class="stage"><div class="stage-inner">
 <main id="app"></main>
 <footer>
-  MIT License. Copyright (c) 2026 Shrinjoy Ghosh. Version 1.2.1. Data stays in this browser.
+  MIT License. Copyright (c) 2026 Shrinjoy Ghosh. Version 1.3.0. Data stays in this browser.
   No home recipes for hazardous concentrates, drugs, or explosives. A phenyl page is a plan, not a mix sheet.
 </footer>
+</div></div>
+</div>
 <dialog id="writer">
   <form id="writer-form">
     <h2>Write a mission</h2>
@@ -168,13 +215,14 @@ function scrub(data){
   return data;
 }
 let state = scrub(load());
-let view = "missions";
+let view = "desk";
 let pendingDelete = "";
 let drillIndex = 0;
 let drillPick = null;
 let bankMode = false;
 let bankDraft = "";
 let bankNote = "";
+let settingsNote = "";
 let confirmBank = "";
 let drillNote = "";
 const PBANK = "shakti-cauldron-portable-bank-v1";
@@ -317,29 +365,38 @@ function load(){
 }
 function save(){ localStorage.setItem(KEY, JSON.stringify(state)); paint(); }
 function paint(){
-  const level = levelFromXp(state.xp||0);
-  const titles = state.profile.rankTitles || [];
-  const title = (titles.find((r)=>r.level===level)||{}).title || ("Level "+level);
   document.getElementById("who").textContent = state.profile.chemistName || "Chemist";
-  document.getElementById("motto").textContent = state.profile.motto || "";
-  document.getElementById("rank").textContent = "Rank "+level+" · "+title;
-  const floor = xpToReach(level), ceil = level>=20 ? floor+1 : xpToReach(level+1);
-  const pct = level>=20 ? 100 : Math.round(((state.xp-floor)/Math.max(1,ceil-floor))*100);
-  document.getElementById("bar").style.width = Math.max(0,Math.min(100,pct))+"%";
-  document.getElementById("xp").textContent = state.xp+" XP"+(level>=20?"":" · next rank at "+ceil);
   document.querySelectorAll("nav button[data-view]").forEach((btn)=>btn.setAttribute("aria-current", btn.dataset.view===view?"page":"false"));
   const root = document.getElementById("app");
-  root.innerHTML = view==="alchemy" ? alchemyHtml() : view==="settings" ? settingsHtml() : view==="drills" ? drillsHtml() : missionsHtml();
+  root.innerHTML = view==="alchemy" ? alchemyHtml() : view==="settings" ? settingsHtml() : view==="drills" ? drillsHtml() : view==="desk" ? deskHtml() : missionsHtml();
+}
+function deskHtml(){
+  const level = levelFromXp(state.xp||0);
+  const titles = state.profile.rankTitles || [];
+  const title = (titles.find((row)=>row.level===level)||{}).title || ("Level "+level);
+  const floor = xpToReach(level);
+  const ceil = level>=20 ? floor : xpToReach(level+1);
+  const pct = level>=20 ? 100 : Math.max(0, Math.min(100, Math.round(((state.xp-floor)/Math.max(1, ceil-floor))*100)));
+  const open = state.missions.filter((mission)=>mission.status==="open").length;
+  const done = state.missions.filter((mission)=>mission.status==="done").length;
+  const next = state.missions.find((mission)=>mission.status==="open");
+  const nextCard = next
+    ? `<article class="card"><p class="kicker">Next on the bench</p><p class="brass">${escapeHtml(next.track)} · ${escapeHtml(KIND[next.kind]||"Assigned")} · ${Number(next.xp)||0} XP</p><h2>${escapeHtml(next.title)}</h2><p class="muted">${escapeHtml(next.brief||"")}</p><div class="row"><button class="primary" type="button" id="go-missions">Open missions</button><button type="button" id="go-drills">Drills</button></div></article>`
+    : `<article class="card"><p class="muted">No open mission. Use Write a mission.</p></article>`;
+  const climb = level>=20 ? "Supreme rank. The curve ends here." : ((state.xp-floor)+" / "+(ceil-floor)+" XP to the next rank. Higher ranks ask for more.");
+  return `<p class="kicker">Atelier</p><h1>${escapeHtml(state.profile.chemistName||"Chemist")}</h1><p class="muted">${escapeHtml(state.profile.motto||"")}</p><article class="card"><div class="rank-row"><div><p class="muted">Rank ${level} of 20</p><p class="rank-title">${escapeHtml(title)}</p><p class="muted">${Number(state.xp)||0} XP</p></div><div class="seal" style="--pct:${pct}"><span>${pct}%</span></div></div><p class="muted">${climb}</p></article><div class="stats"><article class="card stat"><p class="muted">Open missions</p><p class="stat-n display">${open}</p></article><article class="card stat"><p class="muted">Sealed</p><p class="stat-n display">${done}</p></article><article class="card stat"><p class="muted">Alchemy pages</p><p class="stat-n display">${state.alchemy.length}</p></article></div>${nextCard}`;
 }
 function missionsHtml(){
-  return state.missions.map((m)=>{
-    const steps = m.steps.map((s)=>`<label class="row"><input type="checkbox" data-check="${escapeAttr(m.id)}" data-step="${escapeAttr(s.id)}" ${s.done?"checked":""} ${m.status==="done"?"disabled":""}/> <span>${escapeHtml(s.text)}</span></label>`).join("");
+  const head = `<p class="kicker">Missions</p><h1>Guided bench</h1><p class="muted">Check every step, then seal. The box stays beside the step.</p>`;
+  const cards = state.missions.map((m)=>{
+    const steps = m.steps.map((s)=>`<label class="step"><input type="checkbox" data-check="${escapeAttr(m.id)}" data-step="${escapeAttr(s.id)}" ${s.done?"checked":""} ${m.status==="done"?"disabled":""}/> <span>${escapeHtml(s.text)}</span></label>`).join("");
     const ask = pendingDelete===m.id;
     const del = ask
       ? `<button class="primary" type="button" data-confirm="${escapeAttr(m.id)}">Delete for good</button><button type="button" data-cancel="1">Keep it</button><p class="muted">${m.status==="done"?"Deleting returns the sealed XP.":"This removes the mission from this browser."}</p>`
       : `<button type="button" data-ask="${escapeAttr(m.id)}">Delete</button>`;
     return `<article class="card"><p class="brass">${escapeHtml(m.track)} · ${escapeHtml(KIND[m.kind]||"Assigned")} · ${Number(m.xp)||0} XP · ${escapeHtml(m.status)}</p><h2>${escapeHtml(m.title)}</h2><p class="muted">${escapeHtml(m.brief||"")}</p>${m.safetyNote?`<p class="brass">${escapeHtml(m.safetyNote)}</p>`:""}${steps}<label>Notes<textarea data-notes="${escapeAttr(m.id)}">${escapeHtml(m.notes||"")}</textarea></label><div class="row"><button class="primary" type="button" data-seal="${escapeAttr(m.id)}">Seal</button><button type="button" data-reopen="${escapeAttr(m.id)}">Reopen</button>${del}</div></article>`;
-  }).join("") || `<article class="card"><p class="muted">No missions yet. Use Write a mission. The form stays up here, not under the list.</p></article>`;
+  }).join("") || `<article class="card"><p class="muted">No missions yet. Use Write a mission.</p></article>`;
+  return head + cards;
 }
 function drillsHtml(){
   if(bankMode){
@@ -367,7 +424,7 @@ function alchemyHtml(){
   return cards + `<article class="card"><h2>New alchemy page</h2><p class="muted">This stores your notes. It does not fill in a brew method.</p><label>Target product<input id="ap" /></label><label>Purpose<textarea id="au"></textarea></label><label>Ingredients, one per line<textarea id="ai" placeholder="name — amount — role"></textarea></label><label>Conditions<textarea id="ac" placeholder="temperature, time, pH, solvent"></textarea></label><label>Method<textarea id="am"></textarea></label><label>Hazards<textarea id="ah"></textarea></label><button class="primary" type="button" id="aadd">Save page</button></article>`;
 }
 function settingsHtml(){
-  return `<article class="card"><h2>Desk</h2><label>Name<input id="sn" value="${escapeAttr(state.profile.chemistName)}" /></label><label>Motto<input id="sm" value="${escapeAttr(state.profile.motto)}" /></label><button class="primary" type="button" id="ssave">Save name</button></article><article class="card"><h2>Backup</h2><p class="muted">Same JSON shape as the hosted desk. Import replaces this file’s saved desk.</p><div class="row"><button class="primary" type="button" id="export">Export backup</button><label class="btn">Import backup<input id="import" type="file" accept="application/json,.json" hidden /></label></div></article><article class="card"><h2>License</h2><p>MIT License. Copyright (c) 2026 Shrinjoy Ghosh. Source: github.com/Gitersg/shakti-cauldron</p></article>`;
+  return `<p class="kicker">Settings</p><h1>Make the desk yours</h1><article class="card"><h2>Name</h2><label>Name<input id="sn" value="${escapeAttr(state.profile.chemistName)}" /></label><label>Motto<input id="sm" value="${escapeAttr(state.profile.motto)}" /></label><button class="primary" type="button" id="ssave">Save name</button></article><article class="card"><h2>Backup</h2><p class="muted">Same JSON shape as the hosted desk. Import replaces this file’s saved desk. The question bank rides along when the file has one.</p><div class="row"><button class="primary" type="button" id="export">Export backup</button><label class="btn">Import backup<input id="import" type="file" accept="application/json,.json" hidden /></label></div></article><article class="card danger"><h2>Danger zone</h2><p>Delete all data in this file: missions, alchemy pages, the question bank, and XP. Type RESET, then press the button. Export first if you want the work back.</p><label>Type RESET<input id="reset-word" autocomplete="off" placeholder="RESET" /></label><button class="danger" type="button" id="reset-desk">Delete all data</button>${settingsNote?`<p class="brass">${escapeHtml(settingsNote)}</p>`:""}</article><article class="card"><h2>License</h2><p>MIT License. Copyright (c) 2026 Shrinjoy Ghosh. Source: github.com/Gitersg/shakti-cauldron</p></article>`;
 }
 function escapeHtml(s) {
   return String(s)
@@ -566,9 +623,30 @@ document.getElementById("app").addEventListener("click", (event)=>{
     save();
     return;
   }
+  if(t.id==="go-missions"){ view = "missions"; paint(); return; }
+  if(t.id==="go-drills"){ view = "drills"; bankMode = false; paint(); return; }
+  if(t.id==="reset-desk"){
+    const typed = (document.getElementById("reset-word")||{}).value || "";
+    if(typed!=="RESET"){ settingsNote = "Type RESET in the box, then press Delete all data."; paint(); return; }
+    if(!savePortableBank([])){ settingsNote = "Could not clear the question bank. Nothing else was wiped."; paint(); return; }
+    bank = [];
+    drillIndex = 0;
+    drillPick = null;
+    drillNote = "";
+    bankDraft = "";
+    bankMode = false;
+    confirmBank = "";
+    pendingDelete = "";
+    state = fresh();
+    settingsNote = "This file is empty again. The starter missions are back.";
+    view = "desk";
+    save();
+    return;
+  }
   if(t.id==="ssave"){
     state.profile.chemistName = document.getElementById("sn").value.slice(0,80);
     state.profile.motto = document.getElementById("sm").value.slice(0,180);
+    settingsNote = "Name saved.";
     save();
     return;
   }
