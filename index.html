@@ -4,33 +4,44 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Shakti Cauldron</title>
-<meta name="description" content="Portable local-first chemistry mastery desk. Open this file, no install." />
+<meta name="description" content="Portable local-first chemistry mastery desk. One file, no install." />
 <style>
   :root { color-scheme: dark; --ink:#101412; --panel:#1b2420; --cream:#f3ead7; --muted:#b3a78f; --line:#33423c; --verd:#3d9a86; --verd-ink:#06241e; --brass:#d4b072; }
   * { box-sizing: border-box; }
-  body { margin: 0; font: 16px/1.5 Georgia, "Segoe UI", sans-serif; background: var(--ink); color: var(--cream); }
+  body { margin: 0; font: 16px/1.5 Georgia, "Segoe UI", sans-serif; background:
+    radial-gradient(ellipse 90% 42% at 50% -12%, color-mix(in srgb, var(--brass) 28%, transparent), transparent 62%),
+    var(--ink); color: var(--cream); }
   header, main, footer { max-width: 880px; margin: 0 auto; padding: 1rem 1.1rem; }
   h1, h2 { font-weight: 560; letter-spacing: 0; }
   h1 { font-size: 2rem; margin: 0.2rem 0; }
-  button, .btn { min-height: 44px; border-radius: 10px; border: 1px solid var(--line); background: #24302b; color: var(--cream); padding: 0.4rem 0.8rem; cursor: pointer; font: inherit; }
+  button, .btn { min-height: 44px; border-radius: 10px; border: 1px solid var(--line); background: #24302b; color: var(--cream); padding: 0.45rem 0.8rem; cursor: pointer; font: inherit; }
+  button:active:not(:disabled) { scale: 0.96; }
   button.primary { background: var(--verd); color: var(--verd-ink); border-color: var(--verd); font-weight: 600; }
-  nav { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.8rem 0 1rem; }
-  nav button[aria-current="page"] { border-color: var(--verd); color: var(--brass); }
-  .card { border: 1px solid var(--line); background: var(--panel); border-radius: 12px; padding: 0.9rem 1rem; margin: 0.7rem 0; }
+  button:disabled { opacity: 0.45; }
+  nav, .row { display: flex; flex-wrap: wrap; gap: 0.45rem; align-items: center; }
+  nav { margin: 0.8rem 0 0; }
+  nav button[aria-current="page"] { border-color: var(--brass); color: var(--brass); }
+  .card { border: 1px solid var(--line); background: var(--panel); border-radius: 12px; padding: 0.9rem 1rem; margin: 0.7rem 0; box-shadow: inset 0 1px 0 color-mix(in srgb, var(--cream) 10%, transparent); }
   label { display: block; color: var(--muted); font-size: 0.9rem; margin-top: 0.6rem; }
   input, textarea, select { width: 100%; margin-top: 0.25rem; background: var(--ink); color: var(--cream); border: 1px solid var(--line); border-radius: 8px; padding: 0.45rem 0.6rem; font: inherit; }
-  .row { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
   .muted { color: var(--muted); }
   .brass { color: var(--brass); }
-  .bar { height: 8px; background: var(--ink); border-radius: 8px; overflow: hidden; }
+  .bar { height: 8px; background: var(--ink); border-radius: 8px; overflow: hidden; margin-top: 0.4rem; }
   .bar > span { display: block; height: 100%; background: var(--verd); }
   footer { color: var(--muted); font-size: 0.9rem; }
   a { color: var(--brass); }
+  dialog { border: 1px solid var(--brass); border-radius: 16px; background: var(--panel); color: var(--cream); width: min(100% - 1.5rem, 32rem); padding: 1rem 1.1rem 1.2rem; }
+  dialog::backdrop { background: color-mix(in srgb, var(--ink) 78%, transparent); }
+  #ceremony { text-align: center; }
+  .ring { width: 5.5rem; height: 5.5rem; margin: 0 auto 0.8rem; border-radius: 999px; display: grid; place-items: center;
+    background: conic-gradient(from 24deg, var(--brass), var(--verd), var(--brass)); }
+  .ring span { width: 4rem; height: 4rem; border-radius: 999px; background: var(--ink); box-shadow: inset 0 0 0 1px var(--brass); }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 </style>
 </head>
 <body>
 <header>
-  <p class="brass">Shakti Cauldron · portable file</p>
+  <p class="brass">Shakti Cauldron · one file</p>
   <h1 id="who">Chemist</h1>
   <p class="muted" id="motto"></p>
   <p class="brass" id="rank"></p>
@@ -38,21 +49,358 @@
   <p class="muted" id="xp"></p>
   <nav>
     <button type="button" data-view="missions">Missions</button>
+    <button type="button" data-view="drills">Drills</button>
     <button type="button" data-view="alchemy">Alchemy</button>
     <button type="button" data-view="settings">Backup</button>
+    <button type="button" class="primary" id="open-writer">Write a mission</button>
   </nav>
 </header>
 <main id="app"></main>
 <footer>
-  MIT License. Copyright (c) 2026 Shrinjoy Ghosh. This file stores data only in this browser.
-  It does not give home recipes for hazardous concentrates, drugs, or explosives.
-  A phenyl page is a product plan, not a mix sheet.
+  MIT License. Copyright (c) 2026 Shrinjoy Ghosh. Version 1.1.0. Data stays in this browser.
+  No home recipes for hazardous concentrates, drugs, or explosives. A phenyl page is a plan, not a mix sheet.
 </footer>
-<script src="cauldron-1.js"></script>
-<script src="cauldron-2.js"></script>
-<script src="cauldron-3.js"></script>
-<script src="cauldron-4.js"></script>
-<script src="cauldron-5.js"></script>
-<script src="cauldron-6.js"></script>
+<dialog id="writer">
+  <form id="writer-form">
+    <h2>Write a mission</h2>
+    <p class="muted">The desk will not invent a hazardous procedure. Say so in the steps if a real lab is required.</p>
+    <label>Title<input id="nt" required autocomplete="off" /></label>
+    <label>Track
+      <select id="nk"></select>
+    </label>
+    <label>New track, optional
+      <input id="nknew" autocomplete="off" placeholder="Leave blank to use the track above" />
+    </label>
+    <label>Kind
+      <select id="nkind">
+        <option value="read">Study</option>
+        <option value="solve">Solve</option>
+        <option value="practical">Bench</option>
+        <option value="custom">Assigned</option>
+      </select>
+    </label>
+    <label>What this mission is for<textarea id="nb" rows="3"></textarea></label>
+    <label>Steps, one per line<textarea id="ns" rows="4">Read the source
+Write the working
+Seal what you learned</textarea></label>
+    <label>XP if sealed<input id="nx" type="number" min="1" max="5000" value="40" /></label>
+    <div class="row" style="margin-top:0.8rem">
+      <button class="primary" type="submit">Add mission</button>
+      <button type="button" id="close-writer">Close</button>
+    </div>
+  </form>
+</dialog>
+<dialog id="ceremony">
+  <div class="ring" aria-hidden="true"><span></span></div>
+  <p id="c-kicker" class="brass"></p>
+  <h2 id="c-title"></h2>
+  <p id="c-body" class="muted"></p>
+  <p id="c-xp" class="brass" style="font-size:1.6rem"></p>
+  <button type="button" class="primary" id="c-close">Back to the bench</button>
+</dialog>
+<script>
+const KEY = "shakti-cauldron-portable-v1";
+const TITLES = ["Ember Spark","Crucible Hand","Measure Keeper","Solution Scholar","Bench Adept","Formula Scribe","Bond Wright","Reaction Warden","Lattice Smith","Equilibrium Eye","Titre Hand","Organic Pathfinder","Still Master","Assay Warden","Cauldron Adept","Flame Sovereign","Lattice Sovereign","Master Chemist","Shakti Adept","Supreme Cauldron"];
+const KIND = { read:"Study", solve:"Solve", practical:"Bench", custom:"Assigned" };
+const DRILLS = [
+  ["sigfig","Foundations","How many significant figures are in 0.0450?",["2","3","4","5"],1,"Leading zeros do not count. The 4, the 5, and the trailing zero do."],
+  ["mole","Foundations","One mole contains about",["100 particles","1 gram always","6.022 × 10^23 particles","22.4 grams"],2,"That count is Avogadro’s number. Mass depends on the substance."],
+  ["density","Foundations","Density is",["mass × volume","mass ÷ volume","volume ÷ mass","mass + volume"],1,"Keep the units. A bare number is not a density."],
+  ["protons","Atoms","Atomic number counts",["neutrons","protons","bonds","only valence electrons"],1,"Protons name the element. Neutrons name the isotope."],
+  ["nacl","Bonding","Solid sodium chloride is",["a covalent network","an ionic lattice","a metal","a hydrogen-bonded liquid"],1,"A metal gives an electron to a nonmetal. The solid is a lattice of ions."],
+  ["cacl","Bonding","The formula of calcium chloride is",["CaCl","CaCl2","Ca2Cl","ClCa"],1,"Calcium is Ca2+. Two chlorides balance it."],
+  ["water","Stoichiometry","In 2H2 + O2 → 2H2O, water’s coefficient is",["1","2","3","4"],1,"Two waters balance four hydrogen atoms and two oxygen atoms."],
+  ["ph","Acids","A solution of pH 3 is",["strongly basic","weakly basic","acidic","neutral"],2,"Below 7 is acidic. 7 is neutral water. Above 7 is basic."],
+  ["lechat","Equilibrium","Raising temperature on an exothermic equilibrium shifts it",["toward products","toward reactants","not at all","only with a catalyst"],1,"Heat behaves like a product. Adding it favours the reverse."],
+  ["bleach","Bench craft","Household bleach must not be mixed with",["plain water for dilution","ammonia or acid","table salt","a glass rod"],1,"Bleach with ammonia or acid can release toxic gas. This is a refusal. Never test it."],
+  ["closed","Bench craft","Heating a flammable liquid in a closed container is",["the safe default","a pressure hazard","required for every ester","safer than open"],1,"Vapour needs a way out. Closed heating of flammables is banned here."],
+  ["phenyl","Product planning","The phenyl page on this desk is",["a home recipe with concentrations","a product plan and a refusal list","a bleach mix","a drug synthesis"],1,"It names the product class and what you will not do. It is not a brew sheet."]
+];
+function xpToReach(level){ if(level<=1) return 0; return Math.round(40*Math.pow(level-1,1.9)); }
+function levelFromXp(xp){ let level=1; for(let n=2;n<=20;n++){ if(xp>=xpToReach(n)) level=n; else break;} return level; }
+function todayKey(){
+  const d = new Date();
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+function uid(){ return crypto.randomUUID(); }
+function step(text){ return {id:uid(), text, done:false}; }
+function starter(){
+  const rows = [
+    ["The chemist’s first page","read","Foundations","Write what a chemist records.",["Name units for mass, volume, and temperature.","Write question, measurement, and what would prove you wrong."],30],
+    ["Significant figures drill","solve","Foundations","Round only the precision you earned.",["Count sig figs in 12.0, 0.045, and 100.10.","Multiply 2.50 × 3.1 and round.","Write the rule in notes."],40],
+    ["Density by water displacement","practical","Foundations","A stone or steel nut, water only.",["Record mass if you can.","Record the water rise.","Density = mass ÷ volume, with units."],50],
+    ["Configurations, five elements","solve","Atoms","Ground states on paper.",["Write Na, Cl, Fe, Cu, Br.","Mark the copper exception."],45],
+    ["Mass-to-mass, one reaction","solve","Stoichiometry","CaCO3 → CaO + CO2 from 25.0 g CaCO3.",["Confirm the 1:1 ratio.","Convert grams to moles.","Convert moles of CaO to grams."],55],
+    ["Cabbage indicator chart","practical","Solutions","Kitchen acids and bases. No bleach.",["Cool a cabbage-water extract.","Test four household items in separate cups.","Record color and acid or base."],60],
+    ["Le Chatelier on paper","solve","Equilibrium","N2 + 3H2 ⇌ 2NH3, exothermic forward.",["Shift if H2 is added.","Shift if pressure rises.","Shift if temperature rises."],50],
+    ["Functional group patrol","solve","Organic","Name the family only.",["Classify ethanol, propanone, ethanoic acid, ethylamine."],40],
+    ["Pairs you will not mix","practical","Bench craft","A written card. Do not test the pairs.",["Look up one university incompatibility chart.","Write five banned pairs, including bleach with acid and bleach with ammonia."],45],
+    ["Plan a phenyl product — do not brew it from this card","practical","Product planning","Indian market phenyl is a pine-oil disinfectant emulsion, not a drug. No recipe and no concentrations here.",["Write what the product is and who must not use it.","Name classes only: oil, emulsifier, water, fragrance.","Write bans: no bleach, no ammonia, no closed heating.","Name PPE and the trusted source for any real method."],70]
+  ];
+  return rows.map((row)=>({
+    id:uid(), title:row[0], kind:row[1], track:row[2], brief:row[3],
+    steps: row[4].map(step), xp:row[5], difficulty:2, status:"open", seeded:true,
+    notes:"", benchCheck:"", safetyNote: row[1]==="practical" ? "Stay inside the written steps. No extra chemicals." : "",
+    awardedXp:0, createdAt:new Date().toISOString()
+  }));
+}
+function fresh(){
+  return {
+    xp:0,
+    profile:{ chemistName:"Chemist", motto:"What you can measure, you can master.", xpMultiplier:1, defaultMissionXp:40, tracks:["Foundations","Atoms","Stoichiometry","Solutions","Equilibrium","Organic","Bench craft","Product planning"], rankTitles: TITLES.map((title,i)=>({level:i+1,title})) },
+    missions: starter(),
+    alchemy: [],
+    log: [],
+    drillClaims: {}
+  };
+}
+function scrub(data){
+  if(!data.profile) data.profile = fresh().profile;
+  const tracks = (data.profile.tracks||[]).map((t)=>String(t).trim()).filter((t)=>t && t.toLowerCase()!=="custom");
+  const fallback = tracks[0] || "Foundations";
+  data.profile.tracks = tracks.length ? tracks : [fallback];
+  (data.missions||[]).forEach((m)=>{ if(String(m.track||"").trim().toLowerCase()==="custom") m.track = fallback; });
+  if(!data.drillClaims) data.drillClaims = {};
+  if(!Array.isArray(data.log)) data.log = [];
+  if(!Array.isArray(data.alchemy)) data.alchemy = [];
+  return data;
+}
+let state = scrub(load());
+let view = "missions";
+let pendingDelete = "";
+let drillIndex = 0;
+let drillPick = null;
+function load(){
+  try { const raw = JSON.parse(localStorage.getItem(KEY)||""); if(raw && raw.missions) return raw; } catch(e){}
+  return fresh();
+}
+function save(){ localStorage.setItem(KEY, JSON.stringify(state)); paint(); }
+function paint(){
+  const level = levelFromXp(state.xp||0);
+  const titles = state.profile.rankTitles || [];
+  const title = (titles.find((r)=>r.level===level)||{}).title || ("Level "+level);
+  document.getElementById("who").textContent = state.profile.chemistName || "Chemist";
+  document.getElementById("motto").textContent = state.profile.motto || "";
+  document.getElementById("rank").textContent = "Rank "+level+" · "+title;
+  const floor = xpToReach(level), ceil = level>=20 ? floor+1 : xpToReach(level+1);
+  const pct = level>=20 ? 100 : Math.round(((state.xp-floor)/Math.max(1,ceil-floor))*100);
+  document.getElementById("bar").style.width = Math.max(0,Math.min(100,pct))+"%";
+  document.getElementById("xp").textContent = state.xp+" XP"+(level>=20?"":" · next rank at "+ceil);
+  document.querySelectorAll("nav button[data-view]").forEach((btn)=>btn.setAttribute("aria-current", btn.dataset.view===view?"page":"false"));
+  const root = document.getElementById("app");
+  root.innerHTML = view==="alchemy" ? alchemyHtml() : view==="settings" ? settingsHtml() : view==="drills" ? drillsHtml() : missionsHtml();
+}
+function missionsHtml(){
+  return state.missions.map((m)=>{
+    const steps = m.steps.map((s)=>`<label class="row"><input type="checkbox" data-check="${escapeAttr(m.id)}" data-step="${escapeAttr(s.id)}" ${s.done?"checked":""} ${m.status==="done"?"disabled":""}/> <span>${escapeHtml(s.text)}</span></label>`).join("");
+    const ask = pendingDelete===m.id;
+    const del = ask
+      ? `<button class="primary" type="button" data-confirm="${escapeAttr(m.id)}">Delete for good</button><button type="button" data-cancel="1">Keep it</button><p class="muted">${m.status==="done"?"Deleting returns the sealed XP.":"This removes the mission from this browser."}</p>`
+      : `<button type="button" data-ask="${escapeAttr(m.id)}">Delete</button>`;
+    return `<article class="card"><p class="brass">${escapeHtml(m.track)} · ${escapeHtml(KIND[m.kind]||"Assigned")} · ${Number(m.xp)||0} XP · ${escapeHtml(m.status)}</p><h2>${escapeHtml(m.title)}</h2><p class="muted">${escapeHtml(m.brief||"")}</p>${m.safetyNote?`<p class="brass">${escapeHtml(m.safetyNote)}</p>`:""}${steps}<label>Notes<textarea data-notes="${escapeAttr(m.id)}">${escapeHtml(m.notes||"")}</textarea></label><div class="row"><button class="primary" type="button" data-seal="${escapeAttr(m.id)}">Seal</button><button type="button" data-reopen="${escapeAttr(m.id)}">Reopen</button>${del}</div></article>`;
+  }).join("") || `<article class="card"><p class="muted">No missions yet. Use Write a mission. The form stays up here, not under the list.</p></article>`;
+}
+function drillsHtml(){
+  const row = DRILLS[drillIndex % DRILLS.length];
+  const today = todayKey();
+  const awarded = Object.values(state.drillClaims).filter((d)=>d===today).length;
+  const choices = row[3].map((choice,i)=>{
+    const show = drillPick!==null && (i===row[4] || i===drillPick);
+    const mark = show && i===row[4] ? "primary" : "";
+    return `<button type="button" class="${mark}" data-pick="${i}" ${drillPick!==null?"disabled":""}>${escapeHtml(choice)}</button>`;
+  }).join("");
+  const why = drillPick===null ? "" : `<p class="brass">${drillPick===row[4] ? "Held." : "Not this time."}</p><p>${escapeHtml(row[5])}</p><button type="button" id="drill-next">Next drill</button>`;
+  return `<article class="card"><p class="brass">${escapeHtml(row[1])} · ${awarded} of 5 count today · 6 XP</p><h2>${escapeHtml(row[2])}</h2><div class="row" style="margin-top:0.7rem">${choices}</div>${why}<p class="muted">Drills are ideas and refusals. No mix, no concentration, no procedure.</p></article>`;
+}
+function alchemyHtml(){
+  const cards = state.alchemy.map((a)=>`<article class="card"><h2>${escapeHtml(a.product||"Untitled")}</h2><p class="brass">${escapeHtml(a.status||"")}</p><p>${escapeHtml(a.purpose||"")}</p><button type="button" data-del="${escapeAttr(a.id)}">Delete page</button></article>`).join("");
+  return cards + `<article class="card"><h2>New alchemy page</h2><p class="muted">This stores your notes. It does not fill in a brew method.</p><label>Target product<input id="ap" /></label><label>Purpose<textarea id="au"></textarea></label><label>Ingredients, one per line<textarea id="ai" placeholder="name — amount — role"></textarea></label><label>Conditions<textarea id="ac" placeholder="temperature, time, pH, solvent"></textarea></label><label>Method<textarea id="am"></textarea></label><label>Hazards<textarea id="ah"></textarea></label><button class="primary" type="button" id="aadd">Save page</button></article>`;
+}
+function settingsHtml(){
+  return `<article class="card"><h2>Desk</h2><label>Name<input id="sn" value="${escapeAttr(state.profile.chemistName)}" /></label><label>Motto<input id="sm" value="${escapeAttr(state.profile.motto)}" /></label><button class="primary" type="button" id="ssave">Save name</button></article><article class="card"><h2>Backup</h2><p class="muted">Same JSON shape as the hosted desk. Import replaces this file’s saved desk.</p><div class="row"><button class="primary" type="button" id="export">Export backup</button><label class="btn">Import backup<input id="import" type="file" accept="application/json,.json" hidden /></label></div></article><article class="card"><h2>License</h2><p>MIT License. Copyright (c) 2026 Shrinjoy Ghosh. Source: github.com/Gitersg/shakti-cauldron</p></article>`;
+}
+function escapeHtml(s) {
+  return String(s)
+    .replace(/&/g, "&" + "amp;")
+    .replace(/</g, "&" + "lt;")
+    .replace(/>/g, "&" + "gt;")
+    .replace(/"/g, "&" + "quot;");
+}
+function escapeAttr(s){ return escapeHtml(s); }
+function realTrack(extra, picked){
+  const raw = (extra || picked || "").trim();
+  if(raw && raw.toLowerCase()!=="custom") return raw.slice(0,60);
+  const found = (state.profile.tracks||[]).find((t)=>String(t).trim() && String(t).toLowerCase()!=="custom");
+  return found || "Foundations";
+}
+function showCeremony(mode, title, body, xp){
+  document.getElementById("c-kicker").textContent = mode==="rise" ? "Rank rises" : "Mission sealed";
+  document.getElementById("c-title").textContent = title;
+  document.getElementById("c-body").textContent = body;
+  document.getElementById("c-xp").textContent = "+"+xp+" XP";
+  document.getElementById("ceremony").showModal();
+}
+function fillTracks(){
+  const sel = document.getElementById("nk");
+  const tracks = state.profile.tracks.filter((t)=>String(t).toLowerCase()!=="custom");
+  const list = tracks.length ? tracks : ["Foundations"];
+  sel.innerHTML = list.map((t)=>`<option value="${escapeAttr(t)}">${escapeHtml(t)}</option>`).join("");
+}
+document.getElementById("open-writer").addEventListener("click", ()=>{ fillTracks(); document.getElementById("writer").showModal(); });
+document.getElementById("close-writer").addEventListener("click", ()=>document.getElementById("writer").close());
+document.getElementById("c-close").addEventListener("click", ()=>document.getElementById("ceremony").close());
+document.getElementById("writer-form").addEventListener("submit", (event)=>{
+  event.preventDefault();
+  const title = document.getElementById("nt").value.trim().slice(0,180);
+  if(!title) return;
+  const lines = document.getElementById("ns").value.split("\n").map((s)=>s.trim()).filter(Boolean).slice(0,40);
+  if(!lines.length) return;
+  const track = realTrack(document.getElementById("nknew").value, document.getElementById("nk").value);
+  const xp = Math.min(5000, Math.max(1, Math.round(Number(document.getElementById("nx").value)||40)));
+  if(!state.profile.tracks.some((t)=>t.toLowerCase()===track.toLowerCase())) state.profile.tracks.push(track);
+  state.profile.tracks = state.profile.tracks.filter((t)=>String(t).toLowerCase()!=="custom");
+  state.missions.unshift({ id:uid(), title, kind:document.getElementById("nkind").value || "read", track, brief:document.getElementById("nb").value.trim().slice(0,2000), steps:lines.map(step), xp, difficulty:2, status:"open", seeded:false, notes:"", benchCheck:"", safetyNote:"", awardedXp:0, createdAt:new Date().toISOString() });
+  document.getElementById("nt").value = "";
+  document.getElementById("nb").value = "";
+  document.getElementById("nknew").value = "";
+  document.getElementById("writer").close();
+  view = "missions";
+  save();
+});
+document.querySelector("nav").addEventListener("click", (event)=>{
+  const btn = event.target.closest("button[data-view]");
+  if(!btn) return;
+  view = btn.dataset.view;
+  pendingDelete = "";
+  paint();
+});
+document.getElementById("app").addEventListener("change", (event)=>{
+  const t = event.target;
+  if(t.dataset && t.dataset.check){
+    const mission = state.missions.find((m)=>m.id===t.dataset.check);
+    const stepRow = mission && mission.steps.find((s)=>s.id===t.dataset.step);
+    if(stepRow && mission.status!=="done") stepRow.done = t.checked;
+    save();
+  }
+});
+document.getElementById("app").addEventListener("input", (event)=>{
+  const t = event.target;
+  if(t.dataset && t.dataset.notes){
+    const mission = state.missions.find((m)=>m.id===t.dataset.notes);
+    if(mission) mission.notes = String(t.value).slice(0,4000);
+    localStorage.setItem(KEY, JSON.stringify(state));
+  }
+});
+document.getElementById("app").addEventListener("click", (event)=>{
+  const t = event.target.closest("button");
+  if(!t) return;
+  if(t.dataset.ask){ pendingDelete = t.dataset.ask; paint(); return; }
+  if(t.dataset.cancel){ pendingDelete = ""; paint(); return; }
+  if(t.dataset.confirm){
+    const mission = state.missions.find((m)=>m.id===t.dataset.confirm);
+    if(mission && mission.status==="done") state.xp = Math.max(0, state.xp - (Number(mission.awardedXp)||0));
+    state.missions = state.missions.filter((m)=>m.id!==t.dataset.confirm);
+    pendingDelete = "";
+    save();
+    return;
+  }
+  if(t.dataset.seal){
+    const mission = state.missions.find((m)=>m.id===t.dataset.seal);
+    if(!mission || mission.status==="done") return;
+    if(mission.steps.some((s)=>!s.done)){
+      document.getElementById("c-kicker").textContent = "Still open";
+      document.getElementById("c-title").textContent = "Check every step";
+      document.getElementById("c-body").textContent = "A seal counts only when every step is marked.";
+      document.getElementById("c-xp").textContent = "";
+      document.getElementById("ceremony").showModal();
+      return;
+    }
+    const before = levelFromXp(state.xp);
+    const gain = Math.max(1, Math.round(mission.xp * (Number(state.profile.xpMultiplier)||1)));
+    mission.status="done"; mission.awardedXp=gain; mission.completedAt=new Date().toISOString();
+    state.xp += gain;
+    state.log.unshift({id:uid(), at:mission.completedAt, text:"Sealed "+mission.title, xp:gain});
+    state.log = state.log.slice(0,40);
+    const after = levelFromXp(state.xp);
+    const rankName = ((state.profile.rankTitles||[]).find((r)=>r.level===after)||{}).title || ("Level "+after);
+    save();
+    if(after>before) showCeremony("rise", rankName, mission.title+" paid the climb.", gain);
+    else showCeremony("seal", mission.title, "The work stays sealed. Experience landed once.", gain);
+    return;
+  }
+  if(t.dataset.reopen){
+    const mission = state.missions.find((m)=>m.id===t.dataset.reopen);
+    if(!mission || mission.status!=="done") return;
+    state.xp = Math.max(0, state.xp - (Number(mission.awardedXp)||0));
+    mission.status="open"; mission.awardedXp=0; mission.completedAt=undefined;
+    save();
+    return;
+  }
+  if(t.dataset.del){ state.alchemy = state.alchemy.filter((a)=>a.id!==t.dataset.del); save(); return; }
+  if(t.dataset.pick){
+    const row = DRILLS[drillIndex % DRILLS.length];
+    const pick = Number(t.dataset.pick);
+    drillPick = pick;
+    if(pick===row[4]){
+      const today = todayKey();
+      const awarded = Object.values(state.drillClaims).filter((d)=>d===today).length;
+      if(state.drillClaims[row[0]]!==today && awarded<5){
+        state.drillClaims[row[0]] = today;
+        const before = levelFromXp(state.xp);
+        state.xp += 6;
+        state.log.unshift({id:uid(), at:new Date().toISOString(), text:"Drill held", xp:6});
+        state.log = state.log.slice(0,40);
+        const after = levelFromXp(state.xp);
+        save();
+        if(after>before){
+          const rankName = ((state.profile.rankTitles||[]).find((r)=>r.level===after)||{}).title || ("Level "+after);
+          showCeremony("rise", rankName, "A drill held.", 6);
+        }
+      } else save();
+    } else paint();
+    return;
+  }
+  if(t.id==="drill-next"){ drillPick = null; drillIndex += 1; paint(); return; }
+  if(t.id==="aadd"){
+    const product = document.getElementById("ap").value.trim().slice(0,180);
+    if(!product) return;
+    const now = new Date().toISOString();
+    const ingredients = document.getElementById("ai").value.split("\n").filter((s)=>s.trim()).slice(0,40).map((line)=>{
+      const parts = line.split("—").map((s)=>s.trim());
+      return {id:uid(), name:parts[0]||line.trim(), amount:parts[1]||"", role:parts[2]||""};
+    });
+    state.alchemy.unshift({ id:uid(), product, purpose:document.getElementById("au").value.slice(0,2000), ingredients: ingredients.length?ingredients:[{id:uid(),name:"",amount:"",role:""}], temperature:"", time:"", ph:"", solvent:"", atmosphere:document.getElementById("ac").value.slice(0,1000), method:document.getElementById("am").value.slice(0,4000), observations:"", hazards:document.getElementById("ah").value.slice(0,2000), yieldNote:"", status:"idea", extra:[], createdAt:now, updatedAt:now });
+    save();
+    return;
+  }
+  if(t.id==="ssave"){
+    state.profile.chemistName = document.getElementById("sn").value.slice(0,80);
+    state.profile.motto = document.getElementById("sm").value.slice(0,180);
+    save();
+    return;
+  }
+  if(t.id==="export"){
+    const file = { app:"shakti-cauldron", version:1, exportedAt:new Date().toISOString(), xp:state.xp, profile:state.profile, missions:state.missions, alchemy:state.alchemy, log:state.log };
+    const blob = new Blob([JSON.stringify(file,null,2)], {type:"application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href=url; a.download="shakti-cauldron-backup.json"; a.click();
+    URL.revokeObjectURL(url);
+  }
+});
+document.getElementById("app").addEventListener("change", async (event)=>{
+  if(event.target.id!=="import") return;
+  const file = event.target.files && event.target.files[0];
+  if(!file) return;
+  try {
+    const raw = JSON.parse(await file.text());
+    if(!raw || raw.app!=="shakti-cauldron" || raw.version!==1) throw new Error("shape");
+    if(!Array.isArray(raw.missions) || raw.missions.length>400) throw new Error("missions");
+    if(raw.alchemy && (!Array.isArray(raw.alchemy) || raw.alchemy.length>200)) throw new Error("alchemy");
+    state = scrub({ xp:Number(raw.xp)||0, profile:raw.profile, missions:raw.missions, alchemy:raw.alchemy||[], log:Array.isArray(raw.log)?raw.log.slice(0,80):[], drillClaims: state.drillClaims });
+    save();
+  } catch(e){ document.getElementById("c-kicker").textContent = "Import stopped"; document.getElementById("c-title").textContent = "Not a Shakti Cauldron backup"; document.getElementById("c-body").textContent = "The file was left unused."; document.getElementById("c-xp").textContent = ""; document.getElementById("ceremony").showModal(); }
+});
+paint();
+</script>
 </body>
 </html>
